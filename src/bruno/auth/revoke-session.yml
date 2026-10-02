@@ -1,0 +1,19 @@
+info:
+  name: Revoke session
+  type: http
+  seq: 7
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/v1/auth/sessions/:sessionId"
+  params:
+    - name: sessionId
+      value: "1"
+      type: path
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Foreign/unknown ids 404 (scoped to own tokens). Revoking the current
+  session kills the caller's own token.

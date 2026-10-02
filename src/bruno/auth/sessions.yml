@@ -1,0 +1,14 @@
+info:
+  name: List sessions
+  type: http
+  seq: 6
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/auth/sessions"
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  AC-001.8. Lists device sessions with current=true on the caller's token.

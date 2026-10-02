@@ -6,6 +6,7 @@ use App\Exceptions\ApiErrorRenderer;
 use App\Http\Middleware\ApiEnvelope;
 use App\Http\Middleware\EnsureDocsVisible;
 use App\Http\Middleware\RequestId;
+use App\Http\Middleware\TrackTokenUsage;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -22,6 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append([
             RequestId::class,
             ApiEnvelope::class,
+        ]);
+
+        $middleware->api(append: [
+            TrackTokenUsage::class,
         ]);
 
         $middleware->web(append: [

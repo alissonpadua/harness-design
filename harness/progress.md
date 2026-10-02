@@ -40,3 +40,10 @@
 - 62 tests, coverage 100.0%, pint/phpstan/audit green; openapi freshness pending the commit (by design).
 - Rails paid off again: arch FormRequest-checker fixed for invokable controllers (checker bug, not weakened); L13 NotificationFake has assertSentTo (no assertQueued*); refresh() wipes transient attributes (test lesson); MailMessage line()-after-action → outroLines.
 - Next: T3 — login/device-tokens/sessions + EnsureEmailVerified login-plane gate + isSuspended stub (test-first).
+
+## 2026-10-02 — session 5 (spec 001 T3: login plane)
+- T3 GREEN: login/device-tokens/sessions complete — LoginAction (one-token-per-device-type, other_login.detected), EnsureVerified gate (403), denial parity incl. soft-deleted (S7), me/logout/logout-all/sessions list+revoke (IDOR-scoped 404), TrackTokenUsage 5-min throttle, auth-login bucket, spatie #[Response] docs, 6 bruno/auth requests w/ token chaining.
+- Catches: spatie Data POST=201 default; test-container guard persistence (forgetGuards needed after revocation asserts); stale config:cache produced bogus 500 on real stack earlier.
+- 77 tests, 100.0% coverage, check.sh green (openapi regenerated for 6 new routes).
+- Next: T4 — forgot/reset + magic link (auth_links reuse), then T5 2FA.
+- Banked: class docblock with @property MUST sit ABOVE the #[Attributes] group (php-parser association) or Larastan ignores it; pint rewrites FQCNs in docblocks into imports (fully_qualified_strict_types).

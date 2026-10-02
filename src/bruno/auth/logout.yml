@@ -1,0 +1,17 @@
+info:
+  name: Logout (current device)
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/auth/logout"
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  assertions:
+    - expression: res.body.data.revoked
+      operator: eq
+      value: "true"

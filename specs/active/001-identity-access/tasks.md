@@ -13,9 +13,9 @@ One task = one session, TDD (constitution #2). AC = spec.md ids.
 - [x] T2.3 event: `user.registered` fires exactly once
 
 ## T3 — Login + device tokens + sessions + logout-all (AC-001.5–.9 core) — S2
-- [ ] T3.1 RED: same-type replace / other-type survives; other_login.detected only when others existed; identical 401 for wrong email vs wrong password; last_used throttle; sessions list w/ current flag; DELETE session; logout vs logout-all
-- [ ] T3.2 GREEN: LoginAction, SessionResource, TrackTokenUsage middleware, RevokeDeviceTokensAction
-- [ ] T3.3 soft-deleted login block (AC-001.7) w/ isSuspended stub
+- [x] T3.1 RED: same-type replace / other-type survives; other_login.detected only when others existed; identical 401 for wrong email vs wrong password; last_used throttle; sessions list w/ current flag; DELETE session; logout vs logout-all
+- [x] T3.2 GREEN: LoginAction, SessionResource, TrackTokenUsage middleware, RevokeDeviceTokensAction
+- [x] T3.3 soft-deleted login block (AC-001.7) w/ isSuspended stub
 
 ## T4 — Password forgot/reset + magic link (AC-001.10–.11)
 - [ ] T4.1 RED: generic 202 always; reset rotates+revokes+invalidates outstanding links; magic consume issues token+verifies email+single-use; expired/tampered 403

@@ -1,0 +1,13 @@
+info:
+  name: Logout all devices
+  type: http
+  seq: 9
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/auth/logout-all"
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: Returns revoked_count; wipes every device token for the user.
