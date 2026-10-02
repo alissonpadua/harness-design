@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Exceptions;
 
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -51,7 +50,6 @@ final readonly class ApiErrorRenderer
                 422, self::firstMessage($exception->getMessage(), 'The given data was invalid.'), $exception->errors(),
             ],
             $exception instanceof AuthenticationException => [401, 'Unauthenticated.', []],
-            $exception instanceof AuthorizationException => [403, 'This action is unauthorized.', []],
             $exception instanceof ModelNotFoundException => [404, 'Not Found', []],
             default => self::fromHttp($exception),
         };
@@ -72,7 +70,13 @@ final readonly class ApiErrorRenderer
         }
 
         $status = $exception->getStatusCode();
-        $message = HttpResponse::$statusTexts[$status] ?? 'Error';
+
+        // Laravel converts AuthorizationException into AccessDeniedHttpException before render.
+        if ($status === 403) {
+            return [403, 'This action is unauthorized.', []];
+        }
+
+        $message = $status === 404 ? 'Not Found' : (HttpResponse::$statusTexts[$status] ?? 'Error');
 
         return [$status, $message, []];
     }

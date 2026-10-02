@@ -16,7 +16,7 @@ The Laravel app lives in `src/`. This root is the harness.
 | Task | Command |
 |---|---|
 | Boot env | `harness/init.sh` |
-| Full verification (= CI) | `harness/scripts/check.sh` |
+| Full verification (= CI) | `harness/scripts/check.sh` — incl. `pest --coverage --min=100` (constitution #11) |
 | Run tests | `src/bin/pest --filter=...` |
 | Migrate/seed | `src/bin/artisan migrate --seed` |
 | API docs | http://localhost:8080/docs (dev) |

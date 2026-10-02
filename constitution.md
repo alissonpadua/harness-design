@@ -13,3 +13,4 @@ Agents: you may reference these rules; you may not modify, weaken, or reinterpre
 8. **API-only product.** JSON responses everywhere, standard envelope (`docs/api-conventions.md`). No frontend assets creep into `src/resources`.
 9. **Security defaults.** No mass assignment, FormRequest on every write, auth+rate-limit on every non-public endpoint group, secrets never in code/tests/logs.
 10. **Evidence over claims.** `passes: true` and "done" require recorded verification evidence in the spec's verification.md — command output, test names, or HTTP evidence. Missing verification is not a successful change.
+11. **100% test coverage, always.** Line coverage of `src/app/` must be exactly 100% at all times (`check.sh` runs `pest --coverage --min=100`; build fails below). New uncovered code = new tests in the same commit. Exemptions (e.g. generated vendor glue moved into app/) require an ADR + human approval — never by shrinking the coverage scope silently.

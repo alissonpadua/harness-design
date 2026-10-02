@@ -23,3 +23,8 @@
 - AC-010.6 (<90s suite) + GitHub remote fire of PR gates = deferred to convergence (need 002/003 + a pushed branch). feature_list 010 stays passes:false until then.
 - Next: human ratifies deviations + commits session 1; then spec 001-identity-access → human approval → implement (sanctum, spatie/permission, auth scaffold), OR draft 002 tenancy first if you want current_organization in place before auth screens.
 - Convention added + enforced: `final readonly` classes wherever possible (docs/conventions.md #readonly-by-default; new arch test covers app/Actions + app/Http/Middleware with both-direction fixture; retrofitted all 010-era classes; framework-inheriting classes use final + promoted readonly props).
+
+## 2026-10-02 — session 2 (spec 001 drafted)
+- Drafted specs/active/001-identity-access/{spec,plan,tasks,verification}.md from locked Module 1 v1.2. 26 EARS ACs; 10 TDD tasks; package set: sanctum, socialite, asbiin/laravel-webauthn, pragmarx/google2fa, spatie/permission; anti-enumeration + revocation semantics specified; org-plane hooks left null until 002.
+- Awaiting HUMAN approval of spec.md (constitution #1) + micro-decisions 1–5. No code until then.
+- Constitution #11 added (100% line coverage of src/app/ enforced in check.sh via XDEBUG_MODE=coverage + pest --min=100; source scope: app/ only). Coverage gate caught+fixed a latent bug: AuthorizationException arrives pre-converted as AccessDeniedHttpException, so 403 rendered "Forbidden" instead of the promised envelope message; 403/404 now mapped by status. 37 tests, app/ at 100.0%.

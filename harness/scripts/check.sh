@@ -13,8 +13,8 @@ docker compose exec -T app ./vendor/bin/phpstan analyse --no-progress --memory-l
 echo "== composer audit"
 docker compose exec -T app composer audit --no-interaction
 
-echo "== pest (incl. architecture tests)"
-docker compose exec -T app ./vendor/bin/pest
+echo "== pest + 100% app coverage (constitution #11)"
+docker compose exec -T -e XDEBUG_MODE=coverage app ./vendor/bin/pest --coverage --min=100
 
 echo "== openapi freshness"
 docker compose exec -T app php artisan scramble:export --path=openapi.json
