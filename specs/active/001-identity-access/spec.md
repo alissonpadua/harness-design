@@ -1,6 +1,6 @@
 # Spec 001 — Identity & Access
 
-Status: DRAFT — awaiting human approval (constitution #1)
+Status: APPROVED by human 2026-10-02 (with amended decisions 3/4/5 — see § Micro-decisions)
 Source scope: ../../feature-scope.md § Module 1 v1.2 (LOCKED)
 Maps to: `harness/feature_list.json` → features["001"].steps S1–S8.
 
@@ -18,9 +18,9 @@ Every authenticated surface of the boilerplate (tenancy, billing, admin) consume
 ## Acceptance criteria (EARS)
 
 ### Registration & verification (S1)
-- AC-001.1 WHEN POST `/api/v1/auth/register` with valid name+email+password (min 10, confirmed) THE SYSTEM SHALL create the user **unverified**, dispatch `user.registered`, issue a token for the declared `device_type`, and queue a verification email containing a signed, expiring payload (≤60 min).
-- AC-001.2 WHEN GET/POST `/api/v1/auth/verify-email/{id}` with valid signature THE SYSTEM SHALL set `email_verified_at`; invalid/expired signature → 403 envelope. Re-verification request (`POST /api/v1/auth/email/verify/resend`) is rate-limited and idempotent.
-- AC-001.3 IF an endpoint marked `verified`-required (email change, password change, 2FA management, token creation for integration tokens) is called by an unverified user THEN THE SYSTEM SHALL return 403 `{"message":"Your email address is not verified."}`. Ordinary authenticated reads and profile GET work unverified.
+- AC-001.1 WHEN POST `/api/v1/auth/register` with valid name+email+password (min 10; lowercase+uppercase+digit+symbol required, per `config/auth.password.rules`) THE SYSTEM SHALL create the user **unverified**, dispatch `user.registered`, and queue a verification email containing a signed, expiring payload (≤60 min) — and SHALL return 202 with **no token** (login is blocked until verified, AC-001.3).
+- AC-001.2 WHEN GET/POST `/api/v1/auth/verify-email/{id}` with valid signature THE SYSTEM SHALL set `email_verified_at`; invalid/expired signature → 403 envelope. Re-verification request (`POST /api/v1/auth/email/verify/resend`, public, email param, generic 202) is rate-limited and idempotent.
+- AC-001.3 THE login plane (password login, passkey assert, OAuth exchange, magic-link consume for OTHER flows, token-authenticated requests issued before a later un-verification) SHALL deny unverified accounts with 403 `{"message":"Please verify your email address."}` — except the verification/resend/forgot-password endpoints themselves, which must remain reachable.
 - AC-001.4 WHEN register is called with an existing email THE SYSTEM SHALL return the same generic success-neutral response shape as acceptance (no account enumeration) while sending no new email when unverified-only… (anti-enumeration: timing-normalized, generic message) — 422 on strict mode is FORBIDDEN.
 
 ### Login & device tokens (S2, S7)
@@ -40,7 +40,7 @@ Every authenticated surface of the boilerplate (tenancy, billing, admin) consume
 - AC-001.14 IF the matched user is soft-deleted → AC-001.7 generic denial. IF a password was never set, the user may set one via forgot-password (creates credential for the existing account, indistinguishable response).
 
 ### Passkeys (S4)
-- AC-001.15 Authenticated POST `/api/v1/auth/passkeys/register/challenge` → registration options; POST `.../register` {name, attestation} stores the credential (max 10 per user → 422 beyond). Credentials are deletable via `GET/DELETE /api/v1/auth/passkeys/{id}`.
+- AC-001.15 Authenticated POST `/api/v1/auth/passkeys/register/challenge` → registration options; POST `.../register` {name, attestation} stores the credential (max **5** per user → 422 beyond). Credentials are deletable via `GET/DELETE /api/v1/auth/passkeys/{id}`.
 - AC-001.16 Public POST `/api/v1/auth/passkeys/assert/challenge` {email?} → assertion options (discoverable when email omitted, using allowCredentials narrowing); POST `.../assert` {device_type, assertion} verifies signature, counter, and issues a device token (AC-001.5 semantics). Failure → 401 generic.
 
 ### 2FA (S5)
@@ -69,9 +69,9 @@ Personal workspace creation (002 listens to `user.registered`), org roles (002),
 - Every AC = at least one Pest test in `tests/Feature/M001_Identity/`; anti-enumeration and revocation tests are mandatory.
 - Full `check.sh` green per task; arch rules stay green (mail only from listeners).
 
-## Micro-decisions flagged for the human (defaults chosen; veto any)
-1. Magic-link **marks email verified** on consume (it proves mailbox control). (proposed: yes, keep)
-2. OAuth-created users get `email_verified_at` only when provider guarantees verified email (Google yes w/ `email_verified` claim, Facebook conservative-no). (proposed: keep)
-3. Max 10 passkeys per user. (proposed: keep)
-4. Password min length 10 chars, no complexity theater, future zxcvbn optional. (proposed: keep)
-5. Unverified users CAN log in and read (only sensitive actions blocked, AC-001.3). Alternative: hard-block login until verified. (proposed: keep soft)
+## Micro-decisions — RESOLVED by human 2026-10-02 (spec APPROVED with these)
+1. Magic-link **marks email verified** on consume. ✅ keep
+2. OAuth email trust: Google verified-claim honored; Facebook conservative-unverified. ✅ keep
+3. Passkeys per user: **max 5** (amended from 10).
+4. Password: min 10 chars **AND complexity enforced** — must contain lowercase, uppercase, digit, symbol (regex rules centralized in `config/auth.php` → `password.rules` so forks can relax; boilerplate default = strict).
+5. Verification: **HARD BLOCK — unverified users cannot log in** (amended from soft). Register/magic/passkey/OAuth paths that don't prove mailbox control return 403 `{"message":"Please verify your email address."}` until verified. Consequences baked into the ACs below: AC-001.1 issues **no token** at register; AC-001.3 replaced by `EnsureEmailVerified` login-plane gate; OAuth-Facebook users receive verification email and may use magic-link/reset to proceed; enumeration trade-off (403 reveals account state) accepted by the human.
