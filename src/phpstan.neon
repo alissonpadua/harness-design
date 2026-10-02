@@ -1,0 +1,10 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 8
+    paths:
+        - app
+        - database
+        - routes
+    # tests/ intentionally excluded: Pest globals/expect() are verified via runtime, not static analysis.

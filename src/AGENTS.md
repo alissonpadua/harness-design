@@ -1,47 +1,33 @@
-<laravel-boost-guidelines>
-# Laravel Application
+# AGENTS.md — src/ (Laravel app)
 
-This repository contains a Laravel application. Complete the following setup before working on the user's request.
+Part of the agent-first boilerplate. **Root `../AGENTS.md` and `../constitution.md` govern.**
 
-## Prerequisites
+## Non-negotiables (app-level)
 
-Verify that PHP and Composer are available:
+1. **Nothing runs on the host.** Not even PHP or Composer. Use the wrappers:
+   `bin/artisan`, `bin/composer`, `bin/pest`, `bin/pint`, `bin/phpstan`, `bin/scramble`, `bin/up|down|logs|psh`.
+   (The Laravel installer left generic host-install advice in older revisions of this file — ignore it.)
+2. **Write flow:** `Route → FormRequest → App\Data DTO → App\Actions\*Action → Event → Listener`, output via `App\Resources`. Reads may use Models+Resources from the controller directly.
+3. **Every acceptance criterion gets a test before implementation** (constitution #2). Feature tests live in `tests/Feature/M<NNN>_<Area>/` (dir names must not start with a digit — Pest 5 limitation).
+4. **Architecture is enforced by `tests/Architecture`** — file placement and forbidden calls fail the suite; do not move code to dodge a rule, change the rule via ADR + human approval.
+5. **Envelope:** success `{"data": ...}` (auto-wrapped, `ApiEnvelope` middleware), errors `{"message", "errors"}` via `ApiErrorRenderer`. Never `response()->json($model->toArray())` ad hoc in controllers.
+6. **Org-scoped models:** use the `BelongsToOrganization` trait (arrives with spec 002); `current_organization` resolves from `users.current_organization_id`.
+7. **Billing code imports only `Contracts\PaymentGateway`** — Stripe SDK/Cashier are legal only inside `app/Billing/`.
+8. **Readonly by default:** every class without mutable state is `final readonly` (Actions + Middleware enforced by `tests/Architecture`). Extending a mutable framework base (Model, JsonResource, Controller) → `final` + `readonly` promoted properties. Mutability needs a one-line justification.
+9. Run `bash ../harness/scripts/check.sh` before declaring any task done; then commit + journal (`../harness/progress.md`).
 
-```sh
-php -v
-composer -V
+## Useful commands (all in-container via wrappers)
+
+```
+bin/artisan migrate:fresh --seed
+bin/pest --filter=Billing
+bin/scramble            # regenerate openapi.json (commit it)
+bin/psh                 # psql shell
 ```
 
-If either command is unavailable, detect the user's operating system and install the prerequisites with the appropriate command:
+## Stack map
 
-macOS:
-
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"
-```
-
-Windows PowerShell:
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.5'))
-```
-
-Linux:
-
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.5)"
-```
-
-After installation, ask the user to restart their terminal. If the agent needs the restarted shell to continue, ask the user to reopen their terminal and rerun their original prompt.
-
-## Agent Setup
-
-Install Laravel Boost from the application root before making application changes:
-
-```sh
-composer require laravel/boost --dev
-php artisan boost:install
-```
-
-Boost replaces these bootstrap instructions with guidelines tailored to the application. After installation, read `AGENTS.md` again and continue with the user's original request using the generated guidelines.
-</laravel-boost-guidelines>
+- `app/Actions app/Data app/Resources app/Events app/Listeners app/Billing app/Enums` — domain layers
+- `routes/api.php` (`/api/v1`) · `routes/admin-v1.php` (from spec 005)
+- `tests/Architecture` rules are documentation — read them before restructuring
+- Docker/Compose: `docker-compose.yml` (single source of truth, dev==CI), `docker/` build context

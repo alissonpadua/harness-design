@@ -1,0 +1,50 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Boilerplate",
+        "version": "0.0.1"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080/api"
+        }
+    ],
+    "paths": {
+        "/v1/ping": {
+            "get": {
+                "operationId": "v1.ping",
+                "tags": [
+                    "Ping"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`PongResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PongResource"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "PongResource": {
+                "type": "object",
+                "properties": {
+                    "pong": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "pong"
+                ],
+                "title": "PongResource"
+            }
+        }
+    }
+}

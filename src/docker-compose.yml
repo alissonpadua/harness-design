@@ -12,31 +12,7 @@ services:
     depends_on:
       pgsql: { condition: service_healthy }
       redis: { condition: service_healthy }
-    environment:
-      APP_URL: http://localhost:8080
-      DB_CONNECTION: pgsql
-      DB_HOST: pgsql
-      DB_PORT: 5432
-      DB_DATABASE: boilerplate
-      DB_USERNAME: boilerplate
-      DB_PASSWORD: secret
-      CACHE_STORE: redis
-      QUEUE_CONNECTION: redis
-      SESSION_DRIVER: database
-      REDIS_HOST: redis
-      MAIL_HOST: mailpit
-      MAIL_PORT: 1025
-      AWS_ACCESS_KEY_ID: boilerplate
-      AWS_SECRET_ACCESS_KEY: boilerplate-dev
-      AWS_DEFAULT_REGION: us-east-1
-      AWS_ENDPOINT: http://rustfs:9000
-      AWS_BUCKET: private-assets
-      AWS_USE_PATH_STYLE_ENDPOINT: "true"
-      REVERB_HOST: reverb
-      REVERB_PORT: 8080
-      REVERB_APP_ID: boilerplate
-      REVERB_APP_KEY: bo-key
-      REVERB_APP_SECRET: bo-secret
+    # Connectivity config lives in src/.env (single source of truth, proven by spec-010 AC-010.10)
     healthcheck:
       test: ["CMD-SHELL", "php -r 'echo 1;' >/dev/null"]
       interval: 10s

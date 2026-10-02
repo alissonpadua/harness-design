@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-exec "$(dirname "$0")/_run" app php artisan scramble:export "$@"
+exec "$(dirname "$0")/_run" app php artisan scramble:export --path=openapi.json
