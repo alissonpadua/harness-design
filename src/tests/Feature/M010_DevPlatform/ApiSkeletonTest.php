@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Resources\PongResource;
+use App\Data\PongData;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -81,7 +81,7 @@ test('success envelope helper wraps arrays under data', function () {
 });
 
 test('resource-shaped success is returned as-is', function () {
-    Route::get('/api/v1/__t-res', fn () => new PongResource(['pong' => true]));
+    Route::get('/api/v1/__t-res', fn () => new PongData(pong: true));
     $this->getJson('/api/v1/__t-res')->assertExactJson(['data' => ['pong' => true]]);
 });
 

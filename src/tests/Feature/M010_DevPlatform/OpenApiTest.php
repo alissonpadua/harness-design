@@ -39,6 +39,21 @@ test('AC-010.5 every API route appears in the OpenAPI document', function () {
     expect($missing)->toBe([], 'Undocumented API routes found — run: php artisan scramble:export --path=openapi.json && commit openapi.json (host: src/bin/scramble)');
 });
 
+test('AC-010.5 ping schema is inferred from the Data DTO (kills Scramble JR001 warning)', function () {
+    $doc = json_decode((string) file_get_contents(base_path('openapi.json')), true, 512, JSON_THROW_ON_ERROR);
+
+    $schema = $doc['paths']['/v1/ping']['get']['responses']['200']['content']['application/json']['schema'] ?? [];
+
+    // follow a single $ref if Scramble references a component
+    if (isset($schema['$ref'])) {
+        $name = substr((string) $schema['$ref'], (int) strrpos((string) $schema['$ref'], '/') + 1);
+        $schema = $doc['components']['schemas'][$name] ?? [];
+    }
+
+    expect($schema['properties']['data']['properties']['pong']['type'] ?? null)->toBe('boolean')
+        ->and($schema['properties']['data']['required'] ?? [])->toContain('pong');
+});
+
 test('AC-010.5 docs surface hidden by default, visible when DOCS_PUBLIC', function () {
     config(['app.docs_public' => false]);
     $this->get('/docs')->assertNotFound();

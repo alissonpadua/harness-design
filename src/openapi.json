@@ -18,11 +18,27 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "`PongResource`",
+                        "description": "Standard success envelope.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PongResource"
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pong": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "pong"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -33,17 +49,10 @@
     },
     "components": {
         "schemas": {
-            "PongResource": {
+            "PongData": {
                 "type": "object",
-                "properties": {
-                    "pong": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "pong"
-                ],
-                "title": "PongResource"
+                "additionalProperties": {},
+                "title": "PongData"
             }
         }
     }
