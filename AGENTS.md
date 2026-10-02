@@ -9,7 +9,7 @@ The Laravel app lives in `src/`. This root is the harness.
 2. **TDD:** failing tests first (from acceptance criteria in spec.md / harness/feature_list.json), then implementation. Never weaken/delete a test, spec, or feature_list entry to make it pass.
 3. **Never call `php`/`composer`/`artisan` on host.** Use `src/bin/*` (Docker wrappers). Nothing runs outside containers.
 4. **Read at session start:** tail `harness/progress.md`, `git log --oneline -15`, then `harness/init.sh` + smoke test.
-5. **Write at session end:** one task max in progress, `check.sh` green, git commit with descriptive message, append to `harness/progress.md`, flip `passes` in `feature_list.json` only after real verification.
+5. **Write at session end:** one task max in progress, `check.sh` green, PROPOSE commit command(s) per docs/conventions.md — **the agent NEVER runs `git commit`; the human executes them** (`git commit -S -m "..."`), append to `harness/progress.md`, flip `passes` in `feature_list.json` only after real verification.
 
 ## Commands
 

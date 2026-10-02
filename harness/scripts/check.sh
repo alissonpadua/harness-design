@@ -17,9 +17,9 @@ echo "== pest (incl. architecture tests)"
 docker compose exec -T app ./vendor/bin/pest
 
 echo "== openapi freshness"
-docker compose exec -T app php artisan scramble:export
-git -C .. diff --quiet -- src/openapi.yaml || {
-  echo "✗ openapi.yaml is stale — run: src/bin/scramble && commit the diff"
+docker compose exec -T app php artisan scramble:export --path=openapi.json
+git -C .. diff --quiet -- src/openapi.json || {
+  echo "✗ openapi.json is stale — run: src/bin/scramble && commit the diff"
   exit 1
 }
 

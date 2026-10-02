@@ -12,3 +12,14 @@
 - Network reality forced ADR-0010: RustFS replaces MinIO (images pulled from public registries), PECL tarballs vendored, Zscaler root CA baked into php:8.4-fpm-bookworm image (Alpine unusable — TLS interception).
 - KNOWN unfinished (owned by spec 010): phpstan+scramble+pint configs not installed yet → check.sh cannot be fully green yet; src/AGENTS.md is the installer's boost-default and must be replaced; .env.example lacks docker-host defaults (DB_HOST=pgsql etc. currently only via compose environment — verify forkers get identical behavior from .env alone); git repo not initialized (awaiting human).
 - Next session: 010-dev-platform-ci — composer require (sanctum, cashier? no: stripe-php behind gateway contract later, spatie packages, pest plugins, larastan, scramble), pint/phpstan configs, arch test pack, CI green.
+
+## 2026-10-02 — session 1 (spec 010 implementation, T1–T6)
+- Spec 010 approved by human; implemented T1–T6 with TDD (RED confirmed before each GREEN).
+- Installed: scramble 0.13.47, larastan 3.12.2, spatie/laravel-data 4.23, php-structure-discoverer 2.4.4, pest-plugin-arch 5.0 (bundled). Added `openapi.json` export committed.
+- Built: pint/phpstan configs (L8 clean); Architecture test pack (SourceScan helper, both-direction fixtures); API skeleton (`/api/v1/ping`, RequestId+ApiEnvelope middleware, ApiErrorRenderer unified envelope 401/403/404/405/422/429); docs gate (`app.docs_public`/DOCS_PUBLIC → EnsureDocsVisible replaces Scramble default); PR gates extracted to harness/scripts/gate-*.sh + selftest.sh (4/4 both-direction green); rewritten `.env.example`; replaced `src/AGENTS.md`.
+- check.sh now fully green: pint→larastan→composer audit→pest(26, 52 assertions)→openapi freshness. == CI.
+- Bugs caught by the rails: non-idempotent DatabaseSeeder (fixed → updateOrCreate); arch rule false-positive on framework storage PUT route (scoped to api/admin); throttle off-by-one (unique limiter per run).
+- DEVIATIONS to ratify (see verification.md): (a) `.env` is now the single connectivity source — compose `environment:` block removed from app service (stronger parity than spec text); (b) docs gate uses unified DOCS_PUBLIC config, spec-005 super-admin prod path still pending.
+- AC-010.6 (<90s suite) + GitHub remote fire of PR gates = deferred to convergence (need 002/003 + a pushed branch). feature_list 010 stays passes:false until then.
+- Next: human ratifies deviations + commits session 1; then spec 001-identity-access → human approval → implement (sanctum, spatie/permission, auth scaffold), OR draft 002 tenancy first if you want current_organization in place before auth screens.
+- Convention added + enforced: `final readonly` classes wherever possible (docs/conventions.md #readonly-by-default; new arch test covers app/Actions + app/Http/Middleware with both-direction fixture; retrofitted all 010-era classes; framework-inheriting classes use final + promoted readonly props).
