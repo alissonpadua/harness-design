@@ -1,0 +1,21 @@
+info:
+  name: Health — infra probe
+  type: http
+  seq: 2
+  tags:
+    - smoke
+
+http:
+  method: GET
+  url: "{{baseUrl}}/up"
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+docs: |-
+  Framework health endpoint (registered in bootstrap/app.php).
+  Full spatie/laravel-health checks arrive with spec 005.

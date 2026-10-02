@@ -34,7 +34,7 @@ Reads via Models/Resources. Details: `docs/architecture.md`, conventions: `docs/
 - `specs/active/NNN-*/` — spec.md (contract) / plan.md / tasks.md / verification.md
 - `harness/` — feature_list.json (acceptance truth), progress.md (journal), scripts/
 - `.agents/` — skills (procedures), subagents (reviewers), hooks (guardrails)
-- `src/` — Laravel 13 / PHP 8.4 app; app-level guide: `src/AGENTS.md`
+- `src/` — Laravel 13 / PHP 8.4 app; app-level guide: `src/AGENTS.md`; API collection: `src/bruno/` (OpenCollection YAML — implemented endpoints only, env `local` = http://localhost:8080)
 
 ## Module map
 

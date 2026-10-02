@@ -1,0 +1,6 @@
+name: production (template — copy per deployment, never commit real hosts/tokens)
+variables:
+  - name: baseUrl
+    value: https://api.example.com
+  - name: token
+    value: ""

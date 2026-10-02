@@ -1,0 +1,31 @@
+info:
+  name: OpenAPI document (machine)
+  type: http
+  seq: 3
+  tags:
+    - meta
+
+http:
+  method: GET
+  url: "{{baseUrl}}/docs/api.json"
+  headers:
+    - name: Accept
+      value: application/json
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("openapi 3.1 document served", function () {
+          expect(res.status).to.equal(200);
+          expect(res.body.openapi).to.equal("3.1.0");
+        });
+
+docs: |-
+  Served by Scramble (spec 010). Requires DOCS_PUBLIC=true in the target env —
+  returns 404 otherwise by design (EnsureDocsVisible).
+  UI version: GET {{baseUrl}}/docs (redirects to /docs/api).
+
+settings:
+  encodeUrl: true

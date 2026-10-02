@@ -1,0 +1,22 @@
+opencollection: "1.0.0"
+
+info:
+  name: Agent-First Boilerplate API
+  description: |-
+    Requests for the implemented endpoints of this Laravel API (see ../docs or docs/api-conventions.md at repo root).
+
+    Usage:
+      1. Boot the stack:  harness/init.sh     (app at http://localhost:8080)
+      2. Select environment "local" in Bruno.
+      3. Every response carries X-Request-Id; success envelope is {"data": …},
+         errors are {"message", "errors?"}.
+
+    Policy: this collection mirrors IMPLEMENTED endpoints only (same freshness
+    discipline as openapi.json). Each spec module (001-…) adds its folder here
+    as it lands — never document what doesn't exist yet.
+
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

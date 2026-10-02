@@ -1,0 +1,32 @@
+info:
+  name: Ping — public smoke + envelope proof
+  type: http
+  seq: 1
+  tags:
+    - smoke
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/ping"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+        test('standard success envelope {data:{pong:true}}', function () {
+          expect(res.body).to.eql({ data: { pong: true } });
+        });
+        test("carries X-Request-Id", function () {
+          expect(res.headers["x-request-id"]).to.not.be.undefined;
+        });
+
+docs: |-
+  Spec 010 AC-001.7 slice. Public, no auth. Also the canonical example of the
+  envelope every API route returns: JSON wrapped under `data`.
+
+settings:
+  encodeUrl: true
