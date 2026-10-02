@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Exceptions\AuthLinkException;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
@@ -48,6 +49,27 @@ class AuthLink extends Model
         $link->setAttribute('token', $token);
 
         return $link;
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Mark every outstanding link of a type for a user as used (password reset
+     * invalidates previous verification/magic payloads — AC-001.10).
+     */
+    public static function revokeOutstanding(int $userId, string $type): void
+    {
+        self::query()
+            ->where('user_id', $userId)
+            ->where('type', $type)
+            ->whereNull('used_at')
+            ->update(['used_at' => now()]);
     }
 
     public static function consume(User $user, string $type, string $token): self

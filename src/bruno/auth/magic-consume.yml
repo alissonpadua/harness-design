@@ -1,0 +1,36 @@
+info:
+  name: Consume magic link
+  type: http
+  seq: 13
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/auth/magic-link/consume"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "token": "paste-token-from-mail",
+        "device_type": "web"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.status === 200) {
+          bru.setEnvVar('token', res.body.data.token);
+        }
+    - type: tests
+      code: |-
+        test("200 signs in (token stored) or 403 generic invalid-link", function () {
+          expect([200, 403]).to.include(res.status);
+        });
+
+docs: |-
+  AC-001.11 + decision #1: consumes link, verifies email, issues device token
+  (same-type replace semantics as login).

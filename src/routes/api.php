@@ -3,11 +3,14 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\Auth\CurrentUserController;
+use App\Http\Controllers\Api\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\Auth\LogoutAllController;
 use App\Http\Controllers\Api\Auth\LogoutController;
+use App\Http\Controllers\Api\Auth\MagicLinkController;
 use App\Http\Controllers\Api\Auth\RegisterController;
 use App\Http\Controllers\Api\Auth\ResendVerificationController;
+use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\SessionController;
 use App\Http\Controllers\Api\Auth\VerifyEmailController;
 use App\Http\Controllers\Api\PingController;
@@ -33,6 +36,22 @@ Route::prefix('v1/auth')->group(function (): void {
     Route::post('login', LoginController::class)
         ->middleware('throttle:auth-login')
         ->name('api.v1.auth.login');
+
+    Route::post('forgot-password', ForgotPasswordController::class)
+        ->middleware('throttle:auth-forgot')
+        ->name('api.v1.auth.forgot');
+
+    Route::post('reset-password', ResetPasswordController::class)
+        ->middleware('throttle:auth-reset')
+        ->name('api.v1.auth.reset');
+
+    Route::post('magic-link/request', [MagicLinkController::class, 'request'])
+        ->middleware('throttle:auth-magic-request')
+        ->name('api.v1.auth.magic.request');
+
+    Route::post('magic-link/consume', [MagicLinkController::class, 'consume'])
+        ->middleware('throttle:auth-magic-consume')
+        ->name('api.v1.auth.magic.consume');
 
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('me', CurrentUserController::class)->name('api.v1.auth.me');

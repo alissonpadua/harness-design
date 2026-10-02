@@ -18,8 +18,8 @@ One task = one session, TDD (constitution #2). AC = spec.md ids.
 - [x] T3.3 soft-deleted login block (AC-001.7) w/ isSuspended stub
 
 ## T4 — Password forgot/reset + magic link (AC-001.10–.11)
-- [ ] T4.1 RED: generic 202 always; reset rotates+revokes+invalidates outstanding links; magic consume issues token+verifies email+single-use; expired/tampered 403
-- [ ] T4.2 GREEN: both flows (token broker + auth_links type=magic), notifications, buckets
+- [x] T4.1 RED: generic 202 always; reset rotates+revokes+invalidates outstanding links; magic consume issues token+verifies email+single-use; expired/tampered 403
+- [x] T4.2 GREEN: both flows (token broker + auth_links type=magic), notifications, buckets
 
 ## T5 — 2FA (AC-001.17–.20) — S5
 - [x] T5.0 SPIKE (DONE EARLY with T1.1): asbiin/laravel-webauthn 6.0.0 installs+publishes clean on L13 — no fallback needed

@@ -1,0 +1,26 @@
+info:
+  name: Request magic link
+  type: http
+  seq: 12
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/auth/magic-link/request"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "email": "ada@example.com"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "202"
+
+docs: AC-001.11. Token arrives by mail (15-min, single-use, also verifies email).

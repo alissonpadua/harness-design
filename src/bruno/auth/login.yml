@@ -16,7 +16,7 @@ http:
     data: |-
       {
         "email": "ada@example.com",
-        "password": "Str0ng!Passw0rd",
+        "password": "N3w!SecretPass",
         "device_type": "web"
       }
   auth: inherit
@@ -37,6 +37,13 @@ runtime:
             expect(res.body.data.device_type).to.equal('web');
           }
         });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
 
 docs: |-
   AC-001.5. device_type ∈ web|mobile|desktop|cli. Re-login on the same type

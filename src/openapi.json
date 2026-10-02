@@ -64,6 +64,55 @@
                 }
             }
         },
+        "/v1/auth/forgot-password": {
+            "post": {
+                "operationId": "v1.auth.forgot",
+                "tags": [
+                    "ForgotPassword"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Always accepted (anti-enumeration).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "accepted": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "accepted"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/v1/auth/login": {
             "post": {
                 "operationId": "v1.auth.login",
@@ -237,6 +286,126 @@
                 }
             }
         },
+        "/v1/auth/magic-link/request": {
+            "post": {
+                "operationId": "v1.auth.magic.request",
+                "tags": [
+                    "MagicLink"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "Always accepted (anti-enumeration).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "accepted": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "accepted"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/auth/magic-link/consume": {
+            "post": {
+                "operationId": "v1.auth.magic.consume",
+                "tags": [
+                    "MagicLink"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConsumeMagicLinkRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Signs in and marks the email verified.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string"
+                                                },
+                                                "device_type": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "token",
+                                                "device_type"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "description": "Unknown/expired/consumed link (identical).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/ping": {
             "get": {
                 "operationId": "v1.ping",
@@ -367,6 +536,74 @@
                     },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/auth/reset-password": {
+            "post": {
+                "operationId": "v1.auth.reset",
+                "tags": [
+                    "ResetPassword"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetPasswordRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password rotated; all previous sessions revoked.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "reset": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "reset"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid token / email (identical) or weak password.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "errors"
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -610,6 +847,24 @@
     },
     "components": {
         "schemas": {
+            "ConsumeMagicLinkRequest": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "minLength": 64,
+                        "maxLength": 64
+                    },
+                    "device_type": {
+                        "$ref": "#/components/schemas/DeviceType"
+                    }
+                },
+                "required": [
+                    "token",
+                    "device_type"
+                ],
+                "title": "ConsumeMagicLinkRequest"
+            },
             "CurrentUserData": {
                 "type": "object",
                 "additionalProperties": {},
@@ -624,6 +879,21 @@
                     "cli"
                 ],
                 "title": "DeviceType"
+            },
+            "EmailRequest": {
+                "type": "object",
+                "description": "Body for forgot-password and magic-link/request: just an email.",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 255
+                    }
+                },
+                "required": [
+                    "email"
+                ],
+                "title": "EmailRequest"
             },
             "EmailVerifiedData": {
                 "type": "object",
@@ -704,6 +974,37 @@
                     "email"
                 ],
                 "title": "ResendVerificationRequest"
+            },
+            "ResetPasswordRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "token": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string",
+                        "pattern": "[^a-zA-Z0-9]",
+                        "minLength": 10,
+                        "maxLength": 4096
+                    },
+                    "password_confirmation": {
+                        "type": "string",
+                        "pattern": "[^a-zA-Z0-9]",
+                        "minLength": 10,
+                        "maxLength": 4096
+                    }
+                },
+                "required": [
+                    "email",
+                    "token",
+                    "password",
+                    "password_confirmation"
+                ],
+                "title": "ResetPasswordRequest"
             },
             "SessionListData": {
                 "type": "object",

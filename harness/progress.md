@@ -47,3 +47,9 @@
 - 77 tests, 100.0% coverage, check.sh green (openapi regenerated for 6 new routes).
 - Next: T4 — forgot/reset + magic link (auth_links reuse), then T5 2FA.
 - Banked: class docblock with @property MUST sit ABOVE the #[Attributes] group (php-parser association) or Larastan ignores it; pint rewrites FQCNs in docblocks into imports (fully_qualified_strict_types).
+
+## 2026-10-02 — session 6 (spec 001 T4: password reset + magic link)
+- T4 GREEN: forgot/reset (Password broker, User.sendPasswordResetNotification override→own mail, reset revokes tokens+outstanding verify/magic links, PasswordChanged event, byte-identical 422/202 anti-enumeration) + magic request/consume (IssueDeviceTokenAction shared w/ login, verifies email per decision #1, single-use).
+- Arch rule "no mailer in Actions" correctly caught RequestMagicLinkAction ->notify() mid-build → refactored to MagicLinkRequested event + SendMagicLinkNotification listener. LoginAction refactored to delegate token issuance to IssueDeviceTokenAction (no duplication).
+- 87 tests, 100.0% coverage, phpstan L8 clean. openapi.json regenerated (freshness gate will pass post-commit).
+- L13 gotchas banked (see verification). Next: T5 2FA (T5.0 spike already done).
