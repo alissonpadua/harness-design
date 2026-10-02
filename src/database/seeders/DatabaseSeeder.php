@@ -17,10 +17,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(RolesSeeder::class);
+
         // Idempotent: harness/init.sh re-runs this every session (constitution #4).
+        // Raw password on purpose — the `hashed` cast owns hashing (argon2id, spec 001).
         User::updateOrCreate(
             ['email' => 'test@example.com'],
-            ['name' => 'Test User', 'password' => bcrypt('password')],
+            ['name' => 'Test User', 'password' => 'password'],
         );
     }
 }

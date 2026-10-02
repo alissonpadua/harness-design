@@ -116,4 +116,36 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Password Composition Rules (spec 001, human decision #4)
+    |--------------------------------------------------------------------------
+    |
+    | Centralized validation rules for every password the user sets (register,
+    | reset, change, magic-link upgrade). Strict by default; forks may relax.
+    | Keep in sync with docs/conventions.md.
+    |
+    */
+
+    'password' => [
+        'rules' => [
+            'required',
+            'string',
+            'min:10',
+            'max:4096',
+            'regex:/[a-z]/',      // lowercase
+            'regex:/[A-Z]/',      // uppercase
+            'regex:/[0-9]/',      // digit
+            'regex:/[^a-zA-Z0-9]/', // symbol
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Two-Factor Policy (spec 001 AC-001.19) — the enforceable hook is a
+    | container binding (App\Contracts\TwoFactorPolicy), NOT a config closure,
+    | so `config:cache` stays safe. Org-level binding arrives in spec 002.
+    |--------------------------------------------------------------------------
+    */
+
 ];

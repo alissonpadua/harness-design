@@ -3,9 +3,9 @@
 One task = one session, TDD (constitution #2). AC = spec.md ids.
 
 ## T1 — Migration pack + packages + user factory groundwork (enables all)
-- [ ] T1.1 require sanctum, socialite, webauthn, google2fa+bacon, spatie/permission (versions in verification); publish + edit migrations (users columns, oauth_accounts, passkeys, tokens w/ device_type)
-- [ ] T1.2 RED: model/factory trait tests — User softDeletes, encrypted 2FA casts, hash driver argon2id assert
-- [ ] T1.3 GREEN + seeder: super-admin (`*`) + user roles; `user.registered` dispatch point stub wired to registration in T2
+- [x] T1.1 require sanctum, socialite, webauthn, google2fa+bacon, spatie/permission (versions in verification); publish + edit migrations (users columns, oauth_accounts, passkeys, tokens w/ device_type)
+- [x] T1.2 RED: model/factory trait tests — User softDeletes, encrypted 2FA casts, hash driver argon2id assert
+- [x] T1.3 GREEN + seeder: super-admin (`\*`) + user roles via RolesSeeder (idempotent, pgsql-verified); event dispatch itself lands in T2 with registration
 
 ## T2 — Register + verify + verified-gate (AC-001.1–.4) — S1
 - [ ] T2.1 RED: register success-shape; verification email queued w/ signed payload; verify ok/expired/tampered; resend idempotent+limited; unverified-can-read vs verified-only-403 matrix; enumeration parity test
@@ -22,7 +22,7 @@ One task = one session, TDD (constitution #2). AC = spec.md ids.
 - [ ] T4.2 GREEN: both flows (token broker + auth_links type=magic), notifications, buckets
 
 ## T5 — 2FA (AC-001.17–.20) — S5
-- [ ] T5.0 SPIKE (timeboxed): confirm webauthn/totp stack on L13; record versions (dependency for T6 too)
+- [x] T5.0 SPIKE (DONE EARLY with T1.1): asbiin/laravel-webauthn 6.0.0 installs+publishes clean on L13 — no fallback needed
 - [ ] T5.1 RED: enroll/confirm/active/disable incl. recovery codes shown-once+single-use+hash-stored; login matrix (with/without/missing/invalid otp); force_2fa hook 403; events
 - [ ] T5.2 GREEN: TOTP service, RecoveryCodeCodec, login/otp integration, config policy closure
 

@@ -28,3 +28,9 @@
 - Drafted specs/active/001-identity-access/{spec,plan,tasks,verification}.md from locked Module 1 v1.2. 26 EARS ACs; 10 TDD tasks; package set: sanctum, socialite, asbiin/laravel-webauthn, pragmarx/google2fa, spatie/permission; anti-enumeration + revocation semantics specified; org-plane hooks left null until 002.
 - Awaiting HUMAN approval of spec.md (constitution #1) + micro-decisions 1–5. No code until then.
 - Constitution #11 added (100% line coverage of src/app/ enforced in check.sh via XDEBUG_MODE=coverage + pest --min=100; source scope: app/ only). Coverage gate caught+fixed a latent bug: AuthorizationException arrives pre-converted as AccessDeniedHttpException, so 403 rendered "Forbidden" instead of the promised envelope message; 403/404 now mapped by status. 37 tests, app/ at 100.0%.
+
+## 2026-10-02 — session 3 (spec 001 approved w/ amendments → T1 done)
+- Human decisions: passkeys max 5 · password complexity enforced (config auth.password.rules) · HARD login block for unverified (register returns 202, no token) · magic-link verifies · FB email unverified. spec.md updated + APPROVED.
+- T1 green: identity packages on L13 (webauthn 6.0.0 spike passed early), migrations (users 2FA/softdelete/locale/tz/current_org_id, PAT device_type/ip/agent, oauth_accounts, auth_links), RolesSeeder (super-admin `*` + user, idempotent on pgsql), config/hashing argon2id, auth.password.rules. RED 8-fail→GREEN 46-test suite @100% coverage; config:cache+route:cache verified.
+- Gotchas banked (verification.md): Pest5 API deltas; hashed-cast vs pre-hashed seeder bug fixed.
+- Next: T2 — Register + email verification + login-block gate (AC-001.1/.2/.3/.4), incl. user.registered event + first notification classes.
