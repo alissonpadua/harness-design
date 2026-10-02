@@ -14,8 +14,9 @@ test('every write route (POST/PUT/PATCH/DELETE) type-hints a FormRequest', funct
         ->reject(fn (Route $r) => str_starts_with($r->getAction('controller') ?? '', 'Closure'))
         ->filter(function (Route $r) {
             $parts = explode('@', (string) $r->getAction('controller'), 2);
-            [$class, $method] = [$parts[0] ?? '', $parts[1] ?? ''];
-            if ($method === '' || ! class_exists($class) || ! method_exists($class, $method)) {
+            $class = $parts[0] ?? '';
+            $method = $parts[1] ?? '__invoke'; // single-action controllers
+            if ($class === '' || ! class_exists($class) || ! method_exists($class, $method)) {
                 return true; // unresolvable = violation
             }
 

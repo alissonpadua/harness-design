@@ -8,9 +8,9 @@ One task = one session, TDD (constitution #2). AC = spec.md ids.
 - [x] T1.3 GREEN + seeder: super-admin (`\*`) + user roles via RolesSeeder (idempotent, pgsql-verified); event dispatch itself lands in T2 with registration
 
 ## T2 — Register + verify + verified-gate (AC-001.1–.4) — S1
-- [ ] T2.1 RED: register success-shape; verification email queued w/ signed payload; verify ok/expired/tampered; resend idempotent+limited; unverified-can-read vs verified-only-403 matrix; enumeration parity test
-- [ ] T2.2 GREEN: RegisterUserAction, VerifyEmailAction, `auth_links` table+codec, EnsureEmailIsVerified middleware, 2 notifications, routes, rate bucket
-- [ ] T2.3 event: `user.registered` fires exactly once
+- [x] T2.1 RED: register success-shape; verification email queued w/ signed payload; verify ok/expired/tampered; resend idempotent+limited; unverified-can-read vs verified-only-403 matrix; enumeration parity test
+- [x] T2.2 GREEN: RegisterUserAction, VerifyEmailAction, `auth_links` table+codec, EnsureEmailIsVerified middleware, 2 notifications, routes, rate bucket
+- [x] T2.3 event: `user.registered` fires exactly once
 
 ## T3 — Login + device tokens + sessions + logout-all (AC-001.5–.9 core) — S2
 - [ ] T3.1 RED: same-type replace / other-type survives; other_login.detected only when others existed; identical 401 for wrong email vs wrong password; last_used throttle; sessions list w/ current flag; DELETE session; logout vs logout-all

@@ -1,0 +1,41 @@
+info:
+  name: Register
+  type: http
+  seq: 1
+  tags:
+    - auth
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/auth/register"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Ada Lovelace",
+        "email": "ada+{{ $isoTimestamp }}@example.com",
+        "password": "Str0ng!Passw0rd",
+        "password_confirmation": "Str0ng!Passw0rd"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("202 accepted, identical body for new & existing emails", function () {
+          expect(res.status).to.equal(202);
+          expect(res.body).to.eql({ data: { accepted: true } });
+        });
+
+docs: |-
+  Spec 001 AC-001.1/.4. Password must be ≥10 chars with lowercase, uppercase,
+  digit and symbol (config/auth.password.rules). No token is returned —
+  login is blocked until the email is verified. Duplicate emails get the
+  identical 202 (anti-enumeration).
+
+settings:
+  encodeUrl: true

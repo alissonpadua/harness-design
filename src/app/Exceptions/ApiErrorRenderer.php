@@ -50,6 +50,7 @@ final readonly class ApiErrorRenderer
                 422, self::firstMessage($exception->getMessage(), 'The given data was invalid.'), $exception->errors(),
             ],
             $exception instanceof AuthenticationException => [401, 'Unauthenticated.', []],
+            $exception instanceof AuthLinkException => [403, AuthLinkException::GENERIC_MESSAGE, []],
             $exception instanceof ModelNotFoundException => [404, 'Not Found', []],
             default => self::fromHttp($exception),
         };

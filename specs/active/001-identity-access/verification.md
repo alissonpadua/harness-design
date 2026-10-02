@@ -19,3 +19,7 @@ Append-only evidence log. Each line: `AC-id | task | command/test name | observe
 
 ## Package versions (T1.1 evidence)
 - sanctum 4.3.3 · socialite 5.31 · permission 8.3 · google2fa 9.1 · bacon-qr-code 3.1 · laravel-webauthn 6.0.0
+| AC-001.1–.4 | T2 | RegistrationTest: 15 tests (202-no-token, complexity dataset ×4, confirmation, event-once, anti-enumeration incl. unverified-duplicate path, link lifecycle: verify/consume/replay/expired/tampered/foreign/wrong-type/nonexistent-user, resend generic-202 matrix, AuthLink hash-at-rest, mail content render). RED 12-fail → GREEN 62 tests, coverage 100.0% | green | pending |
+| impl notes | T2 | RegisterUserAction cost-parity Hash::make on dup path; resend+register duplicate both funnel through EmailVerificationRequested → single filter point in listener; spatie HasRoles trait on User; #[Response] type-notation on all 3 auth endpoints; throttle buckets auth-register/resend/verify (5,5,20/min by ip) | green | pending |
+| arch-tool fix | T2 | RouteRules checker bug surfaced by real invokable routes: controller action without @method must default to __invoke (fixed in checker, not weakened — still verifies FormRequest param) | green | pending |
+| bruno | T2 | src/bruno/auth/{register,resend-verification,verify-email}.yml per new convention; YAML validated | green | pending |

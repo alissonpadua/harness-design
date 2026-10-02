@@ -142,6 +142,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Single-Use Auth Link Lifetimes (spec 001)
+    |--------------------------------------------------------------------------
+    */
+
+    'links' => [
+        'verify_email_minutes' => (int) env('AUTH_VERIFY_EMAIL_TTL', 60),
+        'magic_link_minutes' => (int) env('AUTH_MAGIC_LINK_TTL', 15),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Two-Factor Policy (spec 001 AC-001.19) — the enforceable hook is a
     | container binding (App\Contracts\TwoFactorPolicy), NOT a config closure,
     | so `config:cache` stays safe. Org-level binding arrives in spec 002.

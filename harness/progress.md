@@ -34,3 +34,9 @@
 - T1 green: identity packages on L13 (webauthn 6.0.0 spike passed early), migrations (users 2FA/softdelete/locale/tz/current_org_id, PAT device_type/ip/agent, oauth_accounts, auth_links), RolesSeeder (super-admin `*` + user, idempotent on pgsql), config/hashing argon2id, auth.password.rules. RED 8-fail→GREEN 46-test suite @100% coverage; config:cache+route:cache verified.
 - Gotchas banked (verification.md): Pest5 API deltas; hashed-cast vs pre-hashed seeder bug fixed.
 - Next: T2 — Register + email verification + login-block gate (AC-001.1/.2/.3/.4), incl. user.registered event + first notification classes.
+
+## 2026-10-02 — session 4 (spec 001 T2: register + verification)
+- T2 GREEN: full vertical slice live — RegisterRequest→RegisterUserData→RegisterUserAction→UserRegistered/EmailVerificationRequested→listener (auth-link issue + mail)→VerifyEmailAction/ResendVerificationAction; single-use sha256-hashed tokens in auth_links; anti-enumeration (identical 202s, cost-parity hash); 3 named throttle buckets; #[Response] docs; bruno/auth added.
+- 62 tests, coverage 100.0%, pint/phpstan/audit green; openapi freshness pending the commit (by design).
+- Rails paid off again: arch FormRequest-checker fixed for invokable controllers (checker bug, not weakened); L13 NotificationFake has assertSentTo (no assertQueued*); refresh() wipes transient attributes (test lesson); MailMessage line()-after-action → outroLines.
+- Next: T3 — login/device-tokens/sessions + EnsureEmailVerified login-plane gate + isSuspended stub (test-first).

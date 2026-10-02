@@ -1,0 +1,27 @@
+info:
+  name: Resend verification email
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/auth/email/verify/resend"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "email": "ada@example.com"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "202"
+
+docs: |-
+  AC-001.2. Public, rate-limited, always 202 regardless of account state.
