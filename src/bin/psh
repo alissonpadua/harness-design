@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+exec "$(dirname "$0")/compose" exec pgsql psql -U boilerplate boilerplate

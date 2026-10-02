@@ -1,0 +1,32 @@
+name: PR gates
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  spec-required:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: No code without spec
+        run: |
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          CODE=$(echo "$CHANGED" | grep -E '^src/(app|routes|database|config)/' || true)
+          if [ -n "$CODE" ] && ! echo "$CHANGED" | grep -qE '^specs/|^harness/feature_list.json'; then
+            echo "::error::src/ changes require a specs/ diff or feature_list.json update (constitution #1)"; exit 1
+          fi
+  tdd-order:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Implementation commits must include test changes
+        run: |
+          for c in $(git log --format=%H origin/${{ github.base_ref }}..HEAD); do
+            FILES=$(git show --name-only --format= $c)
+            IMPL=$(echo "$FILES" | grep -E '^src/(app|routes)/' || true)
+            TEST=$(echo "$FILES" | grep -E '^src/tests/' || true)
+            if [ -n "$IMPL" ] && [ -z "$TEST" ]; then
+              echo "::error::commit $c touches implementation without tests (constitution #2)"; exit 1
+            fi
+          done

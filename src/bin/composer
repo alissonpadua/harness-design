@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# runs composer inside a throwaway container sharing the app vendor volume
+cd "$(dirname "$0")/.."
+export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-bp}"
+docker compose run --rm -e COMPOSER_ALLOW_SUPERUSER=1 app composer "$@"

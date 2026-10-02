@@ -1,0 +1,141 @@
+{
+  "$schema_note": "Acceptance truth. Agents may ONLY flip 'passes' and append 'verified_at'. Editing/removing features, descriptions, or steps is forbidden (constitution #3). Each step must be provable end-to-end by one test run. Detailed criteria live in specs/*/spec.md; this file is the checklist index.",
+  "features": [
+    {
+      "id": "001",
+      "name": "Identity & Access",
+      "spec": "specs/active/001-identity-access/spec.md",
+      "passes": false,
+      "steps": [
+        "Register with email+password → verification email queued (mailpit) → verify via signed payload",
+        "Login issues exactly one active token per device_type; re-login same type revokes old token, other types survive; other_login.detected event fired",
+        "Google OAuth login creates/links account; non-Google/Meta providers rejected",
+        "Passkey registration + assertion logs in without password",
+        "2FA TOTP enroll/verify/recovery-codes; 2FA required where policy set; admin can force via org policy hook",
+        "Password change requires current password and revokes ALL tokens; email change verifies new + notifies old",
+        "Soft-deleted user cannot authenticate (generic error); restore only via admin endpoint",
+        "spatie global roles gate /admin/v1; permission names use resource.action"
+      ]
+    },
+    {
+      "id": "002",
+      "name": "Teams & Tenancy",
+      "spec": "specs/active/002-teams-tenancy/spec.md",
+      "passes": false,
+      "steps": [
+        "Signup auto-creates undeletable personal workspace; current_organization_id set and switchable via endpoint",
+        "Org-scoped models are isolated: user A cannot read/modify org B rows even knowing the ID (404)",
+        "Plan entitlement max_organizations enforced → 402 SubscriptionRequired when exceeded",
+        "Email invite (pending, 7d expiry) + invite link (expiring token) join flows grant pivot role",
+        "Builtin org roles owner/admin/member/viewer restrict actions per permission map",
+        "Transfer ownership requires 2FA re-check; owner cannot leave before transfer",
+        "Org soft-delete confirm-text; restore admin-only"
+      ]
+    },
+    {
+      "id": "003",
+      "name": "Billing & Monetization",
+      "spec": "specs/active/003-billing/spec.md",
+      "passes": false,
+      "steps": [
+        "Plans/plan_prices/entitlements seeded + admin CRUD without deploy",
+        "Checkout via StripeGateway creates subscription (card required for trial, not for free)",
+        "Own portal: payment methods attach/default/remove; invoice list + signed download URL",
+        "Upgrade prorates via gateway preview; downgrade pending flips at period end",
+        "Webhook → local mirror synced idempotently (replay-safe via webhook_events)",
+        "past_due → grace → downgrade-to-free job transitions observable",
+        "Entitlement check org->can/limit returns 402 envelope; FakeGateway passes whole suite with zero Stripe calls"
+      ]
+    },
+    {
+      "id": "004",
+      "name": "Notifications",
+      "spec": "specs/active/004-notifications/spec.md",
+      "passes": false,
+      "steps": [
+        "Catalog class per type via make:notification; preferences auto-expose new types",
+        "Email queued + Blade markdown layout renders in mailpit",
+        "Broadcast delivered to Reverb private user.{id} channel AND persisted for offline list fetch",
+        "User can toggle email per type; locked security types cannot be disabled",
+        "failed_notifications logged; retry command redelivers"
+      ]
+    },
+    {
+      "id": "005",
+      "name": "Admin & Ops",
+      "spec": "specs/active/005-admin-ops/spec.md",
+      "passes": false,
+      "steps": [
+        "/admin/v1 rejects non-super-admin (403)",
+        "Suspend revokes tokens + blocks login; unsuspend restores; reason mandatory",
+        "Impersonation: 15-min token with impersonator_id claim, every request audit-logged, ends on expiry/explicit exit",
+        "Restore soft-deleted user/org endpoints work",
+        "Admin change-org-plan emits domain event + audit + keeps billing mirror consistent; per-org entitlement override works",
+        "Audit log append-only (no update/delete routes), filters by subject/causer/date",
+        "GET /up reports db/redis/queue health; Horizon reachable for super-admin"
+      ]
+    },
+    {
+      "id": "006",
+      "name": "Security & API",
+      "spec": "specs/active/006-security-api/spec.md",
+      "passes": false,
+      "steps": [
+        "Security headers + CORS allowlist + X-Request-Id present on every response",
+        "Throttle buckets: login/otp/password-reset return 429 + Retry-After; plan api_rate_limit honored",
+        "Integration tokens with abilities enforced (missing ability → 403), shown once, revoke works",
+        "2FA-fresh-session required to create token",
+        "Logo upload: finfo+re-encode, public read; all other uploads rejected (module 9 deleted) — form field validation test suite green",
+        "CI: no mass assignment anywhere; FormRequest on 100% write routes (grep test)",
+        "Registrations kill-switch (settings) → 403 register when closed"
+      ]
+    },
+    {
+      "id": "007",
+      "name": "Onboarding Events",
+      "spec": "specs/active/007-onboarding-events/spec.md",
+      "passes": false,
+      "steps": [
+        "user.registered fires once on signup and queues welcome email",
+        "org.created fires for both personal workspace and user-created orgs",
+        "php artisan org:seed-demo {org} is idempotent and demo-provider-extensible"
+      ]
+    },
+    {
+      "id": "008",
+      "name": "Settings & Personalization",
+      "spec": "specs/active/008-settings-personalization/spec.md",
+      "passes": false,
+      "steps": [
+        "users.locale + users.timezone validated, defaulted, applied by SetLocale middleware (validation messages in user locale)",
+        "spatie typed settings cached; admin CRUD; GET /settings/public exposes whitelist only"
+      ]
+    },
+    {
+      "id": "009",
+      "name": "Background Work & Webhooks",
+      "spec": "specs/active/009-background-webhooks/spec.md",
+      "passes": false,
+      "steps": [
+        "OrgScopedJob binds current_organization inside queued code (assert in test)",
+        "Outbound webhook: HMAC-SHA256 + timestamp headers verified against shared secret; payload schema documented",
+        "Delivery retries with backoff to dead-letter; webhook.failing notification sent; redrive command works",
+        "webhook_deliveries log rows contain attempt/status/latency; org CRUD endpoints permissioned"
+      ]
+    },
+    {
+      "id": "010",
+      "name": "Dev Platform & CI",
+      "spec": "specs/active/010-dev-platform-ci/spec.md",
+      "passes": false,
+      "steps": [
+        "harness/init.sh boots cold (fresh clone, no .env) to ready stack idempotently",
+        "harness/scripts/check.sh == CI pipeline (pint, phpstan L8, composer audit, pest incl. arch, openapi fresh)",
+        "PR touching src/ without specs/ diff fails pr-check",
+        "Impl commit without test changes in task scope fails TDD diff-check",
+        "Scramble /docs serves full OpenAPI for every route (count assertion test)",
+        "golden-org fixture + FakeGateway make module suites run in <90s in CI"
+      ]
+    }
+  ]
+}

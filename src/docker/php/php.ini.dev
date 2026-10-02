@@ -1,0 +1,15 @@
+[PHP]
+memory_limit = 512M
+max_execution_time = 120
+post_max_size = 25M
+upload_max_filesize = 20M
+expose_php = Off
+
+[XDEBUG]
+xdebug.mode = develop,debug
+xdebug.start_with_request = trigger
+xdebug.client_host = host.docker.internal
+xdebug.client_port = 9003
+
+[OPCACHE]
+opcache.enable = 0

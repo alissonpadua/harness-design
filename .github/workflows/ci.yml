@@ -1,0 +1,19 @@
+name: CI
+on:
+  pull_request:
+  push: { branches: [main] }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & boot stack
+        run: |
+          cd src
+          docker compose build app
+          docker compose up -d --wait pgsql redis
+          docker compose run --rm app composer install --no-interaction --prefer-dist
+          cp .env.example .env
+          docker compose exec -T app php artisan key:generate --force
+      - name: Full verification (identical to local)
+        run: harness/scripts/check.sh
