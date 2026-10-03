@@ -59,3 +59,10 @@
 - Gotchas banked: PragmaRX casing (PSR-4 case-sensitive), Data-on-POST defaults 201 (5 controllers now set 200 explicitly), my own script truncated a controller file via open(w) before read (rewritten — beware).
 - 96 tests, 100.0% coverage, all rails green (openapi freshness = pending commit).
 - Next: T6 passkeys (asbiin webauthn 6.0 ceremonies with deterministic test fixtures — hardest remaining).
+
+## 2026-10-02 — session 8 (spec 001 T6: passkeys)
+- T6 GREEN: full WebAuthn surface on asbiin/laravel-webauthn 6.0 headless API (prepare/validate attestation+assertion, cache-based single-use challenges keyed user/host|ip): register options/register(201)/index/destroy(auth:sanctum, cap 5) + authenticate/options + authenticate(public, throttled, generic-401 parity, unverified 403 gate, satisfies mandatory 2FA by design — phishing-resistant factor).
+- Built tests/Support/PasskeyFixture.php: real software authenticator (OpenSSL P-256, packed self-attestation, hand-rolled CBOR, COSE DER→raw sig conversion, server-provided rp/challenge/userHandle).
+- Rails fixed 3 real integration bugs (RS1 fatal via container override; https origin enforcement; padded credentialId lookup) + 1 API mismatch (decodeUnpadded absent).
+- 106 tests, 446 assertions, app/ coverage 100.0%, phpstan L8 clean. bruno/auth passkey requests added.
+- Next: T7 OAuth (socialite google/facebook, oauth_accounts, exchange flow — network-blocked providers mocked at Socialite facade).

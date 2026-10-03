@@ -27,8 +27,8 @@ One task = one session, TDD (constitution #2). AC = spec.md ids.
 - [x] T5.2 GREEN: TOTP service, RecoveryCodeCodec, login/otp integration, config policy closure
 
 ## T6 — Passkeys (AC-001.15–.16) — S4
-- [ ] T6.1 RED: register challenge/attest (+max 10, delete); assert discoverable+narrowed; token issuance equals AC-001.5 semantics; bad signature 401
-- [ ] T6.2 GREEN with package ceremonies; fixture keys stored under tests/Fixtures (deterministic CBOR)
+- [x] T6.1 RED: register challenge/attest (+max 10, delete); assert discoverable+narrowed; token issuance equals AC-001.5 semantics; bad signature 401
+- [x] T6.2 GREEN with package ceremonies; fixture keys stored under tests/Fixtures (deterministic CBOR)
 
 ## T7 — OAuth google/facebook (AC-001.12–.14) — S3
 - [ ] T7.1 RED: provider whitelist 404; redirect shape; exchange new-user/verified-email-link/deleted-deny; google-verified vs facebook-unverified flag rule; user.registered on creation; generic denial parity

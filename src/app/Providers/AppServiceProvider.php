@@ -11,6 +11,12 @@ use App\Events\Auth\MagicLinkRequested;
 use App\Events\Auth\UserRegistered;
 use App\Listeners\Auth\SendEmailVerificationNotification;
 use App\Listeners\Auth\SendMagicLinkNotification;
+use Cose\Algorithm\Manager as CoseAlgorithmManager;
+use Cose\Algorithm\Signature\ECDSA\ES256;
+use Cose\Algorithm\Signature\ECDSA\ES384;
+use Cose\Algorithm\Signature\ECDSA\ES512;
+use Cose\Algorithm\Signature\EdDSA\EdDSA;
+use Cose\Algorithm\Signature\RSA\RS256;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
@@ -26,6 +32,11 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(Google2FA::class);
+
+        // asbiin/laravel-webauthn hardcodes insecure RS1 into its COSE manager binding
+        // (fatal E_USER_ERROR on PHP 8.5 + web-auth/cose-lib >= 4.8) — safe subset instead.
+        $this->app->singleton(CoseAlgorithmManager::class, fn () => (new CoseAlgorithmManager)
+            ->add(new ES256, new ES384, new ES512, new RS256, new EdDSA));
         $this->app->bind(TwoFactorPolicy::class, DefaultTwoFactorPolicy::class);
     }
 
@@ -47,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('auth-reset', fn (Request $request) => Limit::perMinute(10)->by((string) $request->ip()));
         RateLimiter::for('auth-magic-request', fn (Request $request) => Limit::perMinute(5)->by((string) $request->ip()));
         RateLimiter::for('auth-magic-consume', fn (Request $request) => Limit::perMinute(10)->by((string) $request->ip()));
+        RateLimiter::for('auth-passkey', fn (Request $request) => Limit::perMinute(10)->by((string) $request->ip()));
         RateLimiter::for('auth-2fa', fn (Request $request) => Limit::perMinute(10)->by($request->user() ? (string) $request->user()->id : (string) $request->ip()));
     }
 }

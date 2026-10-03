@@ -406,6 +406,374 @@
                 }
             }
         },
+        "/v1/auth/passkeys/authenticate/options": {
+            "post": {
+                "operationId": "v1.auth.passkeys.auth_options",
+                "tags": [
+                    "Passkey"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasskeyAuthOptionsRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request options for navigator.credentials.get().",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "publicKey": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "required": [
+                                                "publicKey"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/auth/passkeys/authenticate": {
+            "post": {
+                "operationId": "v1.auth.passkeys.authenticate",
+                "tags": [
+                    "Passkey"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AuthenticatePasskeyRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string"
+                                                },
+                                                "device_type": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "token",
+                                                "device_type"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "description": "Unknown credential / failed assertion (identical).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/passkeys/register/options": {
+            "post": {
+                "operationId": "v1.auth.passkeys.register.options",
+                "tags": [
+                    "Passkey"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Creation options for navigator.credentials.create().",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "publicKey": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "required": [
+                                                "publicKey"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/auth/passkeys/register": {
+            "post": {
+                "operationId": "v1.auth.passkeys.register",
+                "tags": [
+                    "Passkey"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterPasskeyRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "created_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "description": "Invalid/unmatched attestation or cap reached.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "errors"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/passkeys": {
+            "get": {
+                "operationId": "v1.auth.passkeys.index",
+                "tags": [
+                    "Passkey"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "`PasskeyListData`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "passkeys": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "created_at": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "name",
+                                                            "created_at"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "passkeys"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/v1/auth/passkeys/{passkey}": {
+            "delete": {
+                "operationId": "v1.auth.passkeys.destroy",
+                "tags": [
+                    "Passkey"
+                ],
+                "parameters": [
+                    {
+                        "name": "passkey",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "revoked": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "revoked"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "description": "Unknown or foreign passkey.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/ping": {
             "get": {
                 "operationId": "v1.ping",
@@ -1004,6 +1372,46 @@
     },
     "components": {
         "schemas": {
+            "AuthenticatePasskeyRequest": {
+                "type": "object",
+                "properties": {
+                    "credential": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "rawId": {
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string"
+                            },
+                            "response": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "minItems": 1
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "rawId",
+                            "type",
+                            "response"
+                        ]
+                    },
+                    "device_type": {
+                        "$ref": "#/components/schemas/DeviceType"
+                    }
+                },
+                "required": [
+                    "credential",
+                    "device_type"
+                ],
+                "title": "AuthenticatePasskeyRequest"
+            },
             "ConfirmTwoFactorRequest": {
                 "type": "object",
                 "properties": {
@@ -1118,10 +1526,80 @@
                 ],
                 "title": "LoginRequest"
             },
+            "PasskeyAuthOptionsRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "email",
+                        "maxLength": 255
+                    }
+                },
+                "title": "PasskeyAuthOptionsRequest"
+            },
+            "PasskeyListData": {
+                "type": "object",
+                "additionalProperties": {},
+                "title": "PasskeyListData"
+            },
             "PongData": {
                 "type": "object",
                 "additionalProperties": {},
                 "title": "PongData"
+            },
+            "PublicKeyCredentialCreationOptions": {
+                "type": "array",
+                "items": {},
+                "title": "PublicKeyCredentialCreationOptions"
+            },
+            "PublicKeyCredentialRequestOptions": {
+                "type": "array",
+                "items": {},
+                "title": "PublicKeyCredentialRequestOptions"
+            },
+            "RegisterPasskeyRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 50
+                    },
+                    "credential": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "rawId": {
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string"
+                            },
+                            "response": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "minItems": 1
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "rawId",
+                            "type",
+                            "response"
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "credential"
+                ],
+                "title": "RegisterPasskeyRequest"
             },
             "RegisterRequest": {
                 "type": "object",

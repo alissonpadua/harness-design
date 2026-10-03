@@ -1,0 +1,28 @@
+info:
+  name: Passkey — authenticate (discoverable)
+  type: http
+  seq: 18
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/auth/passkeys/authenticate/options"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "ada@example.com"
+      }
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("returns publicKey request options", function () {
+          expect(res.status).to.equal(200);
+          expect(res.body.data.publicKey.challenge).to.be.a('string');
+        });
+
+docs: |-
+  Step 1 of the ceremony — feed data.publicKey to navigator.credentials.get()
+  (or the PasskeyFixture in tests for headless clients). Email is optional:
+  omit it for fully discoverable credentials.

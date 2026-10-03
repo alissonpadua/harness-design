@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\Auth\LogoutAllController;
 use App\Http\Controllers\Api\Auth\LogoutController;
 use App\Http\Controllers\Api\Auth\MagicLinkController;
+use App\Http\Controllers\Api\Auth\PasskeyController;
 use App\Http\Controllers\Api\Auth\RegisterController;
 use App\Http\Controllers\Api\Auth\ResendVerificationController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
@@ -54,8 +55,25 @@ Route::prefix('v1/auth')->group(function (): void {
         ->middleware('throttle:auth-magic-consume')
         ->name('api.v1.auth.magic.consume');
 
+    Route::post('passkeys/authenticate/options', [PasskeyController::class, 'authOptions'])
+        ->middleware('throttle:auth-passkey')
+        ->name('api.v1.auth.passkeys.auth_options');
+
+    Route::post('passkeys/authenticate', [PasskeyController::class, 'authenticate'])
+        ->middleware('throttle:auth-passkey')
+        ->name('api.v1.auth.passkeys.authenticate');
+
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('me', CurrentUserController::class)->name('api.v1.auth.me');
+
+        Route::prefix('passkeys')->name('api.v1.auth.passkeys.')->group(function (): void {
+            Route::post('register/options', [PasskeyController::class, 'registerOptions'])->name('register.options');
+            Route::post('register', [PasskeyController::class, 'register'])->name('register');
+            Route::get('/', [PasskeyController::class, 'index'])->name('index');
+            Route::delete('{passkey}', [PasskeyController::class, 'destroy'])
+                ->whereNumber('passkey')
+                ->name('destroy');
+        });
 
         Route::prefix('2fa')->name('api.v1.auth.2fa.')->group(function (): void {
             Route::post('enroll', [TwoFactorController::class, 'enroll'])->middleware('throttle:auth-2fa')->name('enroll');

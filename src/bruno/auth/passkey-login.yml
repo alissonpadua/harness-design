@@ -1,0 +1,38 @@
+info:
+  name: Passkey — submit assertion
+  type: http
+  seq: 19
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/auth/passkeys/authenticate"
+  body:
+    type: json
+    data: |-
+      {
+        "credential": {
+          "id": "<rawId>",
+          "rawId": "<rawId>",
+          "type": "public-key",
+          "response": {
+            "clientDataJSON": "<base64std>",
+            "authenticatorData": "<base64std>",
+            "signature": "<base64url>",
+            "userHandle": "<b64url or null>"
+          }
+        },
+        "device_type": "web"
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.status === 200) {
+          bru.setEnvVar('token', res.body.data.token);
+        }
+
+docs: |-
+  Step 2 — any failure shape returns the identical generic 401 (unknown
+  credential, bad signature, replayed challenge). On success {{token}} is set
+  and this counts as phishing-resistant MFA (satisfies mandatory-2FA policy).
