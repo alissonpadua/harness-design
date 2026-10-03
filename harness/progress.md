@@ -87,3 +87,7 @@
 - SPEC 001 CONVERGED: S1–S8 all evidenced → feature_list 001 passes:true. Residual human-side smokes noted in verification (real OAuth creds, hardware passkeys, GitHub remote gates, 2FA-org-binding→002).
 - 139 tests, 100.0% coverage, all rails green.
 - Next: spec 002-teams-tenancy draft (orgs, membership, pivot roles, current_organization enforcement, personal-workspace-on-registration listener — closes the user.registered TODO from 001).
+
+## 2026-10-02 — session 13 (spec 002 drafted — awaiting approval)
+- Drafted specs/active/002-teams-tenancy/{spec,plan,tasks,verification}: 19 EARS ACs (personal-workspace bootstrap on user.registered closing 001 loop, org CRUD w/ confirm-text delete, switch endpoint, BelongsToOrganization fail-closed scope, 4 builtin pivot roles via config/org_roles.php + OrgAuthorizer seam, email invites + invite links (hashed single-use tokens), ownership transfer w/ password/otp recheck, org require_2fa → TwoFactorPolicy binding, entitlement seam config-backed until 003).
+- Awaiting HUMAN approval + micro-decisions 1–5. No code (constitution #1).
