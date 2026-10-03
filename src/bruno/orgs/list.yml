@@ -1,0 +1,6 @@
+info: { name: List my organizations, type: http, seq: 2 }
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/orgs"
+  auth: { type: bearer, token: "{{token}}" }
+docs: Each entry carries role + current flag; personal workspace is always present (spec 001 T2 auto-created it at registration).

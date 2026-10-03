@@ -91,3 +91,12 @@
 ## 2026-10-02 — session 13 (spec 002 drafted — awaiting approval)
 - Drafted specs/active/002-teams-tenancy/{spec,plan,tasks,verification}: 19 EARS ACs (personal-workspace bootstrap on user.registered closing 001 loop, org CRUD w/ confirm-text delete, switch endpoint, BelongsToOrganization fail-closed scope, 4 builtin pivot roles via config/org_roles.php + OrgAuthorizer seam, email invites + invite links (hashed single-use tokens), ownership transfer w/ password/otp recheck, org require_2fa → TwoFactorPolicy binding, entitlement seam config-backed until 003).
 - Awaiting HUMAN approval + micro-decisions 1–5. No code (constitution #1).
+
+## 2026-10-02 — session 14 (spec 002: BULK-APPROVED by human)
+- Human grant (one-time, module 002 only): develop end-to-end without per-task approval; git commands proposed once at module end; micro-decisions 1–5 stand at defaults.
+
+## 2026-10-02/03 — session 14 (spec 002 BUILT END-TO-END under human bulk-approval)
+- Full tenancy module: organizations(+personal bootstrap listener, protections, settings, confirm-text soft delete), organization_user pivot with 4 builtin roles + OrgAuthorizer (config/org_roles.php), suspension, leave/transfer (password+otp recheck), email invites + shareable invite links (hashed single-use tokens, caps, atomic uses counter), current-organization switch, BelongsToOrganization + fail-closed-but-explicit-wins OrganizationScope, entitlements seam (config → 003), OrgTwoFactorPolicy binding (001's hook now real), 41 new tests; full suite 182 passed / 888 assertions; coverage 100.0%; Larastan L8 clean. bruno/orgs (9 requests).
+- S1–S7 evidenced → feature_list 002 passes:true. (001 also true from last session.)
+- L8/quality loop notes: docblock-must-precede-attributes bit again on @use trait generics (inline /** @use */ above the trait `use` statement wins); two consecutive class docblocks orphan each other — merged; OrgInviteNotification takes org name (belongsTo nullable inference).
+- Next: spec 003 — Billing (plans in DB + entitlement rebind — flips 010 AC-002.6/<90s convergence once landed together w/ 002's golden fixture usage).

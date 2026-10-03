@@ -23,7 +23,7 @@
       "id": "002",
       "name": "Teams & Tenancy",
       "spec": "specs/active/002-teams-tenancy/spec.md",
-      "passes": false,
+      "passes": true,
       "steps": [
         "Signup auto-creates undeletable personal workspace; current_organization_id set and switchable via endpoint",
         "Org-scoped models are isolated: user A cannot read/modify org B rows even knowing the ID (404)",
@@ -32,7 +32,9 @@
         "Builtin org roles owner/admin/member/viewer restrict actions per permission map",
         "Transfer ownership requires 2FA re-check; owner cannot leave before transfer",
         "Org soft-delete confirm-text; restore admin-only"
-      ]
+      ],
+      "verified_at": "2026-10-03",
+      "verification": "specs/active/002-teams-tenancy/verification.md (S1–S7 line-by-line)"
     },
     {
       "id": "003",

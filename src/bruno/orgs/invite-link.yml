@@ -1,0 +1,28 @@
+info:
+  name: Create invite link
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/orgs/:organization/invite-links"
+  params:
+    - name: organization
+      value: "2"
+      type: path
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "role": "viewer",
+        "expires_in_days": 7,
+        "max_uses": 5
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: Token returned once; anyone signed-in can POST /api/v1/invite-links/join {token} (idempotent, counted per new member).

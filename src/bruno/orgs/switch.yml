@@ -1,0 +1,7 @@
+info: { name: Switch current organization, type: http, seq: 4 }
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/orgs/:organization/switch"
+  params: [ { name: organization, value: "2", type: path } ]
+  auth: { type: bearer, token: "{{token}}" }
+docs: Persists users.current_organization_id — every scoped endpoint follows instantly (no per-request header).

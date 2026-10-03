@@ -1,0 +1,22 @@
+info:
+  name: Accept invite
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/invites/accept"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "token": "paste-48-char-token-from-mail"
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: Must run as the invited user (email must match). Grants role; does NOT switch current org.

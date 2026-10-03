@@ -1,0 +1,26 @@
+info:
+  name: Delete organization
+  type: http
+  seq: 9
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/v1/orgs/:organization"
+  params:
+    - name: organization
+      value: "2"
+      type: path
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "confirm_text": "Acme Rockets"
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: Owner only; confirm_text must equal the exact name. Soft delete — restore is admin-only (spec 005).

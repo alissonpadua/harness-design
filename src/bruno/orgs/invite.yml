@@ -1,0 +1,33 @@
+info:
+  name: Invite member (email)
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/orgs/:organization/invites"
+  params:
+    - name: organization
+      value: "2"
+      type: path
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "email": "someone@example.com",
+        "role": "member"
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+
+docs: Accept link goes to the invitee's mailbox (Mailpit); they then run "Accept invite".

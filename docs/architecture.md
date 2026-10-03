@@ -25,6 +25,9 @@ Controllers may query Models directly (with scopes + eager loads) and return Res
 - `BelongsToOrganization` trait required on all org-scoped models
 - Domain code imports `Contracts\PaymentGateway`, never `Laravel\Cashier` directly (Cashier allowed only inside `App\Billing\Stripe`)
 
+## Tenancy (spec 002)
+Single DB, `organization_id` + `App\Models\Scopes\OrganizationScope` (queries without an explicit organization constraint are fail-closed to `users.current_organization_id`; console-without-auth exempt). Membership = `organization_user` pivot (role enum owner/admin/member/viewer + status active/suspended); permission checks through `App\Auth\OrgAuthorizer` reading `config/org_roles.php`. Invitation tokens (email + link) are sha256-hashed single-use. Entitlements behind `Contracts\Org\OrgEntitlements` (config-backed; spec 003 rebinds to DB plans). Org-scoped domain models adopt the `BelongsToOrganization` trait.
+
 ## Key domain contracts
 - `Contracts\PaymentGateway` (+ `StripeGateway`, `FakeGateway`) — M3
 - `Contracts\SmsChannel` — DOES NOT EXIST (cut); notification channels = mail + broadcast only
