@@ -31,8 +31,8 @@ One task = one session, TDD (constitution #2). AC = spec.md ids.
 - [x] T6.2 GREEN with package ceremonies; fixture keys stored under tests/Fixtures (deterministic CBOR)
 
 ## T7 — OAuth google/facebook (AC-001.12–.14) — S3
-- [ ] T7.1 RED: provider whitelist 404; redirect shape; exchange new-user/verified-email-link/deleted-deny; google-verified vs facebook-unverified flag rule; user.registered on creation; generic denial parity
-- [ ] T7.2 GREEN: `App\Auth\OAuth\{Provider}Normalizer`, CompleteOAuthAction, redirect+exchange routes, state check, buckets
+- [x] T7.1 RED: provider whitelist 404; redirect shape; exchange new-user/verified-email-link/deleted-deny; google-verified vs facebook-unverified flag rule; user.registered on creation; generic denial parity
+- [x] T7.2 GREEN: `App\Auth\OAuth\{Provider}Normalizer`, CompleteOAuthAction, redirect+exchange routes, state check, buckets
 
 ## T8 — Profile: update/email-change/password-change/delete-account (AC-001.21–.22, .9) — S6
 - [ ] T8.1 RED: locale/timezone validation; email change pending flow + old-notify + finalize-on-verify + hash-bound signatures; password change revokes others but not self; delete-account soft-deletes+revokes all

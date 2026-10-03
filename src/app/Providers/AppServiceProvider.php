@@ -58,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('auth-reset', fn (Request $request) => Limit::perMinute(10)->by((string) $request->ip()));
         RateLimiter::for('auth-magic-request', fn (Request $request) => Limit::perMinute(5)->by((string) $request->ip()));
         RateLimiter::for('auth-magic-consume', fn (Request $request) => Limit::perMinute(10)->by((string) $request->ip()));
+        RateLimiter::for('auth-oauth', fn (Request $request) => Limit::perMinute(10)->by((string) $request->ip()));
         RateLimiter::for('auth-passkey', fn (Request $request) => Limit::perMinute(10)->by((string) $request->ip()));
         RateLimiter::for('auth-2fa', fn (Request $request) => Limit::perMinute(10)->by($request->user() ? (string) $request->user()->id : (string) $request->ip()));
     }

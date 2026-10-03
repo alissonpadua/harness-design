@@ -406,6 +406,98 @@
                 }
             }
         },
+        "/v1/auth/oauth/{provider}/redirect": {
+            "post": {
+                "operationId": "v1.auth.oauth.redirect",
+                "tags": [
+                    "OAuth"
+                ],
+                "parameters": [
+                    {
+                        "name": "provider",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "url": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "url"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/auth/oauth/{provider}/exchange": {
+            "post": {
+                "operationId": "v1.auth.oauth.exchange",
+                "tags": [
+                    "OAuth"
+                ],
+                "parameters": [
+                    {
+                        "name": "provider",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OAuthExchangeRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/v1/auth/passkeys/authenticate/options": {
             "post": {
                 "operationId": "v1.auth.passkeys.auth_options",
@@ -1525,6 +1617,30 @@
                     "device_type"
                 ],
                 "title": "LoginRequest"
+            },
+            "OAuthExchangeRequest": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "maxLength": 2048
+                    },
+                    "device_type": {
+                        "$ref": "#/components/schemas/DeviceType"
+                    },
+                    "otp": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 32
+                    }
+                },
+                "required": [
+                    "code",
+                    "device_type"
+                ],
+                "title": "OAuthExchangeRequest"
             },
             "PasskeyAuthOptionsRequest": {
                 "type": "object",

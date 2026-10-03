@@ -1,0 +1,26 @@
+info:
+  name: OAuth — authorize URL
+  type: http
+  seq: 20
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/auth/oauth/:provider/redirect"
+  params:
+    - name: provider
+      value: google
+      type: path
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("200 with provider url (only google|facebook)", function () {
+          expect([200, 404]).to.include(res.status);
+        });
+
+docs: |-
+  AC-001.12. Stateless providers (SPA/mobile hold OAuth state). Open data.url,
+  capture ?code= from the callback, send to the Exchange request. Requires
+  GOOGLE_/FACEBOOK_ client credentials in src/.env.

@@ -1,0 +1,23 @@
+info:
+  name: Passkey — register options
+  type: http
+  seq: 17
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/auth/passkeys/register/options"
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("200 publicKey creation options (or 422 at cap 5)", function () {
+          expect([200, 422]).to.include(res.status);
+        });
+
+docs: |-
+  Step 1. Feed data.publicKey to navigator.credentials.create() in the browser,
+  then paste the resulting credential into "Passkey — register submit".

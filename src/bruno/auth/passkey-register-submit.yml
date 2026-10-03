@@ -1,0 +1,42 @@
+info:
+  name: Passkey — register submit
+  type: http
+  seq: 18
+
+http:
+  method: POST
+  url: "{{baseUrl}/api/v1/auth/passkeys/register"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "My Laptop",
+        "credential": {
+          "id": "<rawId from navigator>",
+          "rawId": "<rawId from navigator>",
+          "type": "public-key",
+          "response": {
+            "clientDataJSON": "<base64url from navigator>",
+            "attestationObject": "<base64url from navigator>",
+            "transports": ["internal"]
+          },
+          "clientExtensionResults": {},
+          "authenticatorAttachment": "platform"
+        }
+      }
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("201 stored or 422 invalid/cap-reached", function () {
+          expect([201, 422]).to.include(res.status);
+        });
+
+docs: |-
+  Step 2 (AC-001.15). Requires {{token}} from Login. 201 → key stored; max 5
+  per user; single-use ceremony challenge (re-submit → 422). Manage: GET/DELETE
+  /api/v1/auth/passkeys/{id}.

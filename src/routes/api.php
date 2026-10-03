@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\Auth\LogoutAllController;
 use App\Http\Controllers\Api\Auth\LogoutController;
 use App\Http\Controllers\Api\Auth\MagicLinkController;
+use App\Http\Controllers\Api\Auth\OAuthController;
 use App\Http\Controllers\Api\Auth\PasskeyController;
 use App\Http\Controllers\Api\Auth\RegisterController;
 use App\Http\Controllers\Api\Auth\ResendVerificationController;
@@ -62,6 +63,11 @@ Route::prefix('v1/auth')->group(function (): void {
     Route::post('passkeys/authenticate', [PasskeyController::class, 'authenticate'])
         ->middleware('throttle:auth-passkey')
         ->name('api.v1.auth.passkeys.authenticate');
+
+    Route::prefix('oauth/{provider}')->middleware('throttle:auth-oauth')->group(function (): void {
+        Route::post('redirect', [OAuthController::class, 'redirect'])->name('api.v1.auth.oauth.redirect');
+        Route::post('exchange', [OAuthController::class, 'exchange'])->name('api.v1.auth.oauth.exchange');
+    });
 
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('me', CurrentUserController::class)->name('api.v1.auth.me');

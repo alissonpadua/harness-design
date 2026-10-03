@@ -66,3 +66,8 @@
 - Rails fixed 3 real integration bugs (RS1 fatal via container override; https origin enforcement; padded credentialId lookup) + 1 API mismatch (decodeUnpadded absent).
 - 106 tests, 446 assertions, app/ coverage 100.0%, phpstan L8 clean. bruno/auth passkey requests added.
 - Next: T7 OAuth (socialite google/facebook, oauth_accounts, exchange flow — network-blocked providers mocked at Socialite facade).
+
+## 2026-10-02 — session 9 (spec 001 T7: OAuth)
+- T7 GREEN: CompleteOAuthAction (whitelist→Socialite stateless exchange→resolve: account match / verified-google email link / create w/ provider-claim-trusted verified flag (google only) / soft-deleted+no-email generic 401) + redirect endpoint + throttle + env block + bruno. Gates unified with login (verify-gate 403, mandatory-2FA 403, otp challenge).
+- Catches: Socialite Contracts::Provider lacks stateless()/getRaw() → assert-narrowing for Larastan (broke stdClass mocks → now mock AbstractProvider); mockery one-expectation-per-driver gotcha (split tests); openapi freshness fired as designed.
+- 119 tests, 100.0% coverage. M001: T1–T7 done. Next T8 profile lifecycle (email change finalize, password change revoke-others, delete-account) then T9 admin gate, T10 hardening.

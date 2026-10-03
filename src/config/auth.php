@@ -153,6 +153,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Social Login (spec 001 AC-001.12–.14)
+    |--------------------------------------------------------------------------
+    */
+
+    'oauth' => [
+        'providers' => ['google', 'facebook'],
+        'default_role' => 'user',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Two-Factor Policy (spec 001 AC-001.19) — the enforceable hook is a
     | container binding (App\Contracts\TwoFactorPolicy), NOT a config closure,
     | so `config:cache` stays safe. Org-level binding arrives in spec 002.
