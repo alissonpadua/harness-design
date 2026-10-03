@@ -1,0 +1,29 @@
+info:
+  name: Request email change
+  type: http
+  seq: 3
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/profile/email"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "email": "new-address@example.com",
+        "password": "Str0ng!Passw0rd"
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "202"
+docs: |-
+  AC-001.21. Nothing changes yet: confirmation goes to the NEW address (Mailpit),
+  notice to the OLD one. Then open "Confirm email change" with the link token —
+  on confirm the email applies and ALL sessions die (expect re-login).

@@ -1,0 +1,22 @@
+info:
+  name: Delete account
+  type: http
+  seq: 6
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/profile/delete-account"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "password": "Str0ng!Passw0rd"
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+docs: |-
+  AC-001.22 — soft delete + all tokens revoked. Login afterwards answers the
+  identical generic 401 as for unknown emails. Only an admin (spec 005) can restore.

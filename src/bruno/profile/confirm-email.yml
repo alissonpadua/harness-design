@@ -1,0 +1,19 @@
+info:
+  name: Confirm email change (link)
+  type: http
+  seq: 4
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/auth/confirm-email/:userId/:token"
+  params:
+    - name: userId
+      value: "1"
+      type: path
+    - name: token
+      value: "paste-token-from-mailpit"
+      type: path
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"

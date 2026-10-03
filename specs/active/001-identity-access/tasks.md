@@ -35,8 +35,8 @@ One task = one session, TDD (constitution #2). AC = spec.md ids.
 - [x] T7.2 GREEN: `App\Auth\OAuth\{Provider}Normalizer`, CompleteOAuthAction, redirect+exchange routes, state check, buckets
 
 ## T8 — Profile: update/email-change/password-change/delete-account (AC-001.21–.22, .9) — S6
-- [ ] T8.1 RED: locale/timezone validation; email change pending flow + old-notify + finalize-on-verify + hash-bound signatures; password change revokes others but not self; delete-account soft-deletes+revokes all
-- [ ] T8.2 GREEN: ProfileController/actions/notifications (change-password email, email-change pair)
+- [x] T8.1 RED: locale/timezone validation; email change pending flow + old-notify + finalize-on-verify + hash-bound signatures; password change revokes others but not self; delete-account soft-deletes+revokes all
+- [x] T8.2 GREEN: ProfileController/actions/notifications (change-password email, email-change pair)
 
 ## T9 — Roles & admin gate + integration surface prep (AC-001.23, .26) — S8
 - [ ] T9.1 RED: `/admin/v1/ping` 403 for `user`, 200 for super-admin; `resource.action` middleware examples; expires_at column documented

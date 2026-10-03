@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\Auth\ConfirmEmailController;
 use App\Http\Controllers\Api\Auth\CurrentUserController;
 use App\Http\Controllers\Api\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\Auth\LoginController;
@@ -17,12 +18,13 @@ use App\Http\Controllers\Api\Auth\SessionController;
 use App\Http\Controllers\Api\Auth\TwoFactorController;
 use App\Http\Controllers\Api\Auth\VerifyEmailController;
 use App\Http\Controllers\Api\PingController;
+use App\Http\Controllers\Api\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('v1/ping', PingController::class)->name('api.v1.ping');
 
 Route::prefix('v1/auth')->group(function (): void {
-    // Public login plane (verification gate lives in LoginAction, AC-001.3).
+    // Public login plane (verification gate lives in the actions, AC-001.3).
     Route::post('register', RegisterController::class)
         ->middleware('throttle:auth-register')
         ->name('api.v1.auth.register');
@@ -35,6 +37,11 @@ Route::prefix('v1/auth')->group(function (): void {
         ->whereNumber('userId')
         ->middleware('throttle:auth-verify')
         ->name('api.v1.auth.verify');
+
+    Route::get('confirm-email/{userId}/{token}', ConfirmEmailController::class)
+        ->whereNumber('userId')
+        ->middleware('throttle:auth-verify')
+        ->name('api.v1.auth.confirm-email');
 
     Route::post('login', LoginController::class)
         ->middleware('throttle:auth-login')
@@ -56,6 +63,11 @@ Route::prefix('v1/auth')->group(function (): void {
         ->middleware('throttle:auth-magic-consume')
         ->name('api.v1.auth.magic.consume');
 
+    Route::prefix('oauth/{provider}')->middleware('throttle:auth-oauth')->group(function (): void {
+        Route::post('redirect', [OAuthController::class, 'redirect'])->name('api.v1.auth.oauth.redirect');
+        Route::post('exchange', [OAuthController::class, 'exchange'])->name('api.v1.auth.oauth.exchange');
+    });
+
     Route::post('passkeys/authenticate/options', [PasskeyController::class, 'authOptions'])
         ->middleware('throttle:auth-passkey')
         ->name('api.v1.auth.passkeys.auth_options');
@@ -64,13 +76,15 @@ Route::prefix('v1/auth')->group(function (): void {
         ->middleware('throttle:auth-passkey')
         ->name('api.v1.auth.passkeys.authenticate');
 
-    Route::prefix('oauth/{provider}')->middleware('throttle:auth-oauth')->group(function (): void {
-        Route::post('redirect', [OAuthController::class, 'redirect'])->name('api.v1.auth.oauth.redirect');
-        Route::post('exchange', [OAuthController::class, 'exchange'])->name('api.v1.auth.oauth.exchange');
-    });
-
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('me', CurrentUserController::class)->name('api.v1.auth.me');
+        Route::post('logout', LogoutController::class)->name('api.v1.auth.logout');
+        Route::post('logout-all', LogoutAllController::class)->name('api.v1.auth.logout_all');
+
+        Route::get('sessions', [SessionController::class, 'index'])->name('api.v1.auth.sessions.index');
+        Route::delete('sessions/{sessionId}', [SessionController::class, 'destroy'])
+            ->whereNumber('sessionId')
+            ->name('api.v1.auth.sessions.destroy');
 
         Route::prefix('passkeys')->name('api.v1.auth.passkeys.')->group(function (): void {
             Route::post('register/options', [PasskeyController::class, 'registerOptions'])->name('register.options');
@@ -86,12 +100,13 @@ Route::prefix('v1/auth')->group(function (): void {
             Route::post('confirm', [TwoFactorController::class, 'confirm'])->middleware('throttle:auth-2fa')->name('confirm');
             Route::post('disable', [TwoFactorController::class, 'disable'])->middleware('throttle:auth-2fa')->name('disable');
         });
-        Route::post('logout', LogoutController::class)->name('api.v1.auth.logout');
-        Route::post('logout-all', LogoutAllController::class)->name('api.v1.auth.logout_all');
-
-        Route::get('sessions', [SessionController::class, 'index'])->name('api.v1.auth.sessions.index');
-        Route::delete('sessions/{sessionId}', [SessionController::class, 'destroy'])
-            ->whereNumber('sessionId')
-            ->name('api.v1.auth.sessions.destroy');
     });
+});
+
+Route::prefix('v1/profile')->middleware('auth:sanctum')->name('api.v1.profile.')->group(function (): void {
+    Route::get('/', [ProfileController::class, 'show'])->name('show');
+    Route::put('/', [ProfileController::class, 'update'])->name('update');
+    Route::put('email', [ProfileController::class, 'email'])->name('email');
+    Route::put('password', [ProfileController::class, 'password'])->name('password');
+    Route::post('delete-account', [ProfileController::class, 'deleteAccount'])->name('delete');
 });

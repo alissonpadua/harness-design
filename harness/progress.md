@@ -71,3 +71,8 @@
 - T7 GREEN: CompleteOAuthAction (whitelist→Socialite stateless exchange→resolve: account match / verified-google email link / create w/ provider-claim-trusted verified flag (google only) / soft-deleted+no-email generic 401) + redirect endpoint + throttle + env block + bruno. Gates unified with login (verify-gate 403, mandatory-2FA 403, otp challenge).
 - Catches: Socialite Contracts::Provider lacks stateless()/getRaw() → assert-narrowing for Larastan (broke stdClass mocks → now mock AbstractProvider); mockery one-expectation-per-driver gotcha (split tests); openapi freshness fired as designed.
 - 119 tests, 100.0% coverage. M001: T1–T7 done. Next T8 profile lifecycle (email change finalize, password change revoke-others, delete-account) then T9 admin gate, T10 hardening.
+
+## 2026-10-02 — session 10 (spec 001 T8: profile lifecycle)
+- T8 GREEN: GET/PUT profile (name/locale/timezone), staged email change (auth_links confirm_email_change + dual notifications, newest-wins, apply-on-confirm with full session revoke + EmailChanged), password change (current-check, complexity, keep-own-session revoke-others, PasswordChanged), delete-account (pw-gated soft delete + revoke-all + generic-denial parity with unknown email). Reset-password now also kills staged email-change links.
+- Gotchas: patch-inserted route block landed inside wrong prefix (route:list caught it) → routes/api.php rewritten as full registry; duplicate revokeOutstanding from earlier re-add; Password::broker()->create gone in L13 (Password::createToken); sticky-guard pattern applied x2.
+- 130 tests, 100.0% coverage, L8 clean. M001: T1–T8 done. Next: T9 role plane + /admin/v1 gate; T10 cross-cutting hardening (bucket reflection, notification audit, convergence notes).

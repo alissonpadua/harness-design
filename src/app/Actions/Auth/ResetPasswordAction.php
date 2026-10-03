@@ -25,6 +25,7 @@ final readonly class ResetPasswordAction
                 $user->tokens()->delete();
                 AuthLink::revokeOutstanding($user->id, 'verify_email');
                 AuthLink::revokeOutstanding($user->id, 'magic_link');
+                AuthLink::revokeOutstanding($user->id, 'confirm_email_change');
 
                 event(new PasswordChanged($user));
             }

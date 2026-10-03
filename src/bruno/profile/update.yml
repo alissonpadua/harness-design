@@ -1,0 +1,22 @@
+info:
+  name: Update profile
+  type: http
+  seq: 2
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/profile"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Ada L.",
+        "locale": "fr",
+        "timezone": "Europe/Paris"
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+docs: locale = ISO code pattern; timezone must be a PHP timezone identifier (invalid → 422).
