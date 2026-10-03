@@ -5,7 +5,7 @@
       "id": "001",
       "name": "Identity & Access",
       "spec": "specs/active/001-identity-access/spec.md",
-      "passes": false,
+      "passes": true,
       "steps": [
         "Register with email+password → verification email queued (mailpit) → verify via signed payload",
         "Login issues exactly one active token per device_type; re-login same type revokes old token, other types survive; other_login.detected event fired",
@@ -15,7 +15,9 @@
         "Password change requires current password and revokes ALL tokens; email change verifies new + notifies old",
         "Soft-deleted user cannot authenticate (generic error); restore only via admin endpoint",
         "spatie global roles gate /admin/v1; permission names use resource.action"
-      ]
+      ],
+      "verified_at": "2026-10-02",
+      "verification": "specs/active/001-identity-access/verification.md (S1–S8 line-by-line)"
     },
     {
       "id": "002",

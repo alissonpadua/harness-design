@@ -53,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(EmailChangeRequested::class, [SendEmailChangeNotifications::class, 'handle']);
 
         // Named buckets — full matrix + reflection test arrives in T10/006.
+        RateLimiter::for('admin-generic', fn (Request $request) => Limit::perMinute(60)->by($request->user() ? (string) $request->user()->id : (string) $request->ip()));
         RateLimiter::for('auth-register', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
         RateLimiter::for('auth-resend', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
         RateLimiter::for('auth-verify', fn (Request $request) => Limit::perMinute(20)->by($request->ip()));

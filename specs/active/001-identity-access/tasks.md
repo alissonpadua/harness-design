@@ -43,9 +43,9 @@ One task = one session, TDD (constitution #2). AC = spec.md ids.
 - [x] T9.2 GREEN: spatie config, admin route file + bootstrap registration, permission catalog config, seeder assertions
 
 ## T10 — Cross-cutting hardening (AC-001.24–.25) + convergence
-- [ ] T10.1 Rate-limit config centralization test (every auth route has a bucket — reflection scan of middleware on route group)
-- [ ] T10.2 Notification shape tests for all 6 classes; arch-green (no ->notify( in Actions)
-- [ ] T10.3 openapi regeneration; src/docs updates (api-conventions auth header section); flip feature_list 001 S1–S8 with evidence; move nothing (001 stays active until human confirms + convergence note)
+- [x] T10.1 Rate-limit config centralization test (every auth route has a bucket — reflection scan of middleware on route group)
+- [x] T10.2 Notification shape tests for all 6 classes; arch-green (no ->notify( in Actions)
+- [x] T10.3 openapi regeneration; src/docs updates (api-conventions auth header section); flip feature_list 001 S1–S8 with evidence; move nothing (001 stays active until human confirms + convergence note)
 
 ## Definition of done (001)
 feature_list["001"] S1–S8 each have verification.md lines; check.sh green; PR proposed to human.

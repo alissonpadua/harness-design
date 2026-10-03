@@ -81,3 +81,9 @@
 - T9 GREEN: config/permissions.php catalog (resource.action SSOT) seeded via RolesSeeder, wildcard enabled, routes/admin-v1.php + RouteServiceProvider, spatie middleware aliases in bootstrap, /admin/v1/ping gate proven 401/403/200, openapi now covers admin plane (multi-include api_path), bruno/admin added.
 - Gotchas: spatie middleware aliases NOT auto-registered on L11+; scramble api_path array must be {include:[...]} form (bare list silently falls back); CacheableGenerator staleness after config change → cache:clear.
 - 134 tests, 100.0% coverage, phpstan clean. M001: T1–T9 done. Last: T10 cross-cutting hardening + convergence paperwork.
+
+## 2026-10-02 — session 12 (spec 001 T10 + CONVERGENCE)
+- T10 GREEN: throttle-bucket reflection audit (caught real gap → admin-generic limiter), named-limiter single-home rule + stray scan, notification mail-contract audit, Auth-plane section added to docs/api-conventions.md.
+- SPEC 001 CONVERGED: S1–S8 all evidenced → feature_list 001 passes:true. Residual human-side smokes noted in verification (real OAuth creds, hardware passkeys, GitHub remote gates, 2FA-org-binding→002).
+- 139 tests, 100.0% coverage, all rails green.
+- Next: spec 002-teams-tenancy draft (orgs, membership, pivot roles, current_organization enforcement, personal-workspace-on-registration listener — closes the user.registered TODO from 001).

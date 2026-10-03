@@ -42,7 +42,7 @@ test('AC-010.5 every API route appears in the OpenAPI document', function () {
 test('AC-010.5 ping schema is inferred from the Data DTO (kills Scramble JR001 warning)', function () {
     $doc = json_decode((string) file_get_contents(base_path('openapi.json')), true, 512, JSON_THROW_ON_ERROR);
 
-    $schema = $doc['paths']['/v1/ping']['get']['responses']['200']['content']['application/json']['schema'] ?? [];
+    $schema = $doc['paths']['/api/v1/ping']['get']['responses']['200']['content']['application/json']['schema'] ?? [];
 
     // follow a single $ref if Scramble references a component
     if (isset($schema['$ref'])) {
