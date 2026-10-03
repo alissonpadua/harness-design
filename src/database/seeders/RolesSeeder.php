@@ -18,6 +18,10 @@ class RolesSeeder extends Seeder
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
+        foreach (array_keys(config('permissions.catalog')) as $name) {
+            Permission::findOrCreate((string) $name, 'web');
+        }
+
         $wildcard = Permission::findOrCreate('*', 'web');
         $admin = Role::findOrCreate('super-admin', 'web');
         $admin->syncPermissions([$wildcard]);

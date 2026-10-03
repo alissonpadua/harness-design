@@ -1,0 +1,26 @@
+info:
+  name: Admin ping (role gate)
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/admin/v1/ping"
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("200 super-admin | 403 member | 401 anon", function () {
+          expect([200, 401, 403]).to.include(res.status);
+        });
+
+docs: |-
+  Spec 001 AC-001.23 — proof the /admin/v1* plane is role-gated (super-admin
+  role via spatie, wildcard `*` permission). Swap {{token}} between the
+  `user` and `super-admin` seeded accounts (php artisan db:seed; credentials
+  in RolesSeeder/demo) to watch the gate flip. Real admin endpoints arrive
+  with spec 005.

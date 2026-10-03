@@ -76,3 +76,8 @@
 - T8 GREEN: GET/PUT profile (name/locale/timezone), staged email change (auth_links confirm_email_change + dual notifications, newest-wins, apply-on-confirm with full session revoke + EmailChanged), password change (current-check, complexity, keep-own-session revoke-others, PasswordChanged), delete-account (pw-gated soft delete + revoke-all + generic-denial parity with unknown email). Reset-password now also kills staged email-change links.
 - Gotchas: patch-inserted route block landed inside wrong prefix (route:list caught it) → routes/api.php rewritten as full registry; duplicate revokeOutstanding from earlier re-add; Password::broker()->create gone in L13 (Password::createToken); sticky-guard pattern applied x2.
 - 130 tests, 100.0% coverage, L8 clean. M001: T1–T8 done. Next: T9 role plane + /admin/v1 gate; T10 cross-cutting hardening (bucket reflection, notification audit, convergence notes).
+
+## 2026-10-02 — session 11 (spec 001 T9: role plane + admin gate)
+- T9 GREEN: config/permissions.php catalog (resource.action SSOT) seeded via RolesSeeder, wildcard enabled, routes/admin-v1.php + RouteServiceProvider, spatie middleware aliases in bootstrap, /admin/v1/ping gate proven 401/403/200, openapi now covers admin plane (multi-include api_path), bruno/admin added.
+- Gotchas: spatie middleware aliases NOT auto-registered on L11+; scramble api_path array must be {include:[...]} form (bare list silently falls back); CacheableGenerator staleness after config change → cache:clear.
+- 134 tests, 100.0% coverage, phpstan clean. M001: T1–T9 done. Last: T10 cross-cutting hardening + convergence paperwork.

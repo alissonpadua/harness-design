@@ -6,11 +6,72 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8080/api"
+            "url": "http://localhost:8080"
         }
     ],
     "paths": {
-        "/v1/auth/confirm-email/{userId}/{token}": {
+        "/admin/v1/ping": {
+            "get": {
+                "operationId": "admin.v1.ping",
+                "tags": [
+                    "AdminPing"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Admin plane alive (super-admin only).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "scope": {
+                                                    "type": "string"
+                                                },
+                                                "pong": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "scope",
+                                                "pong"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "403": {
+                        "description": "Authenticated but not super-admin.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/confirm-email/{userId}/{token}": {
             "get": {
                 "operationId": "v1.auth.confirm-email",
                 "tags": [
@@ -82,7 +143,7 @@
                 }
             }
         },
-        "/v1/auth/me": {
+        "/api/v1/auth/me": {
             "get": {
                 "operationId": "v1.auth.me",
                 "tags": [
@@ -136,7 +197,7 @@
                 }
             }
         },
-        "/v1/auth/forgot-password": {
+        "/api/v1/auth/forgot-password": {
             "post": {
                 "operationId": "v1.auth.forgot",
                 "tags": [
@@ -185,7 +246,7 @@
                 }
             }
         },
-        "/v1/auth/login": {
+        "/api/v1/auth/login": {
             "post": {
                 "operationId": "v1.auth.login",
                 "tags": [
@@ -274,7 +335,7 @@
                 }
             }
         },
-        "/v1/auth/logout": {
+        "/api/v1/auth/logout": {
             "post": {
                 "operationId": "v1.auth.logout",
                 "tags": [
@@ -316,7 +377,7 @@
                 }
             }
         },
-        "/v1/auth/logout-all": {
+        "/api/v1/auth/logout-all": {
             "post": {
                 "operationId": "v1.auth.logout_all",
                 "tags": [
@@ -358,7 +419,7 @@
                 }
             }
         },
-        "/v1/auth/magic-link/request": {
+        "/api/v1/auth/magic-link/request": {
             "post": {
                 "operationId": "v1.auth.magic.request",
                 "tags": [
@@ -407,7 +468,7 @@
                 }
             }
         },
-        "/v1/auth/magic-link/consume": {
+        "/api/v1/auth/magic-link/consume": {
             "post": {
                 "operationId": "v1.auth.magic.consume",
                 "tags": [
@@ -478,7 +539,7 @@
                 }
             }
         },
-        "/v1/auth/oauth/{provider}/redirect": {
+        "/api/v1/auth/oauth/{provider}/redirect": {
             "post": {
                 "operationId": "v1.auth.oauth.redirect",
                 "tags": [
@@ -527,7 +588,7 @@
                 }
             }
         },
-        "/v1/auth/oauth/{provider}/exchange": {
+        "/api/v1/auth/oauth/{provider}/exchange": {
             "post": {
                 "operationId": "v1.auth.oauth.exchange",
                 "tags": [
@@ -570,7 +631,7 @@
                 }
             }
         },
-        "/v1/auth/passkeys/authenticate/options": {
+        "/api/v1/auth/passkeys/authenticate/options": {
             "post": {
                 "operationId": "v1.auth.passkeys.auth_options",
                 "tags": [
@@ -618,7 +679,7 @@
                 }
             }
         },
-        "/v1/auth/passkeys/authenticate": {
+        "/api/v1/auth/passkeys/authenticate": {
             "post": {
                 "operationId": "v1.auth.passkeys.authenticate",
                 "tags": [
@@ -689,7 +750,7 @@
                 }
             }
         },
-        "/v1/auth/passkeys/register/options": {
+        "/api/v1/auth/passkeys/register/options": {
             "post": {
                 "operationId": "v1.auth.passkeys.register.options",
                 "tags": [
@@ -731,7 +792,7 @@
                 }
             }
         },
-        "/v1/auth/passkeys/register": {
+        "/api/v1/auth/passkeys/register": {
             "post": {
                 "operationId": "v1.auth.passkeys.register",
                 "tags": [
@@ -810,7 +871,7 @@
                 }
             }
         },
-        "/v1/auth/passkeys": {
+        "/api/v1/auth/passkeys": {
             "get": {
                 "operationId": "v1.auth.passkeys.index",
                 "tags": [
@@ -868,7 +929,7 @@
                 }
             }
         },
-        "/v1/auth/passkeys/{passkey}": {
+        "/api/v1/auth/passkeys/{passkey}": {
             "delete": {
                 "operationId": "v1.auth.passkeys.destroy",
                 "tags": [
@@ -938,7 +999,7 @@
                 }
             }
         },
-        "/v1/ping": {
+        "/api/v1/ping": {
             "get": {
                 "operationId": "v1.ping",
                 "tags": [
@@ -974,7 +1035,7 @@
                 }
             }
         },
-        "/v1/profile": {
+        "/api/v1/profile": {
             "get": {
                 "operationId": "v1.profile.show",
                 "tags": [
@@ -1070,7 +1131,7 @@
                 }
             }
         },
-        "/v1/profile/email": {
+        "/api/v1/profile/email": {
             "put": {
                 "operationId": "v1.profile.email",
                 "tags": [
@@ -1122,7 +1183,7 @@
                 }
             }
         },
-        "/v1/profile/password": {
+        "/api/v1/profile/password": {
             "put": {
                 "operationId": "v1.profile.password",
                 "tags": [
@@ -1174,7 +1235,7 @@
                 }
             }
         },
-        "/v1/profile/delete-account": {
+        "/api/v1/profile/delete-account": {
             "post": {
                 "operationId": "v1.profile.delete",
                 "tags": [
@@ -1226,7 +1287,7 @@
                 }
             }
         },
-        "/v1/auth/register": {
+        "/api/v1/auth/register": {
             "post": {
                 "operationId": "v1.auth.register",
                 "tags": [
@@ -1275,7 +1336,7 @@
                 }
             }
         },
-        "/v1/auth/email/verify/resend": {
+        "/api/v1/auth/email/verify/resend": {
             "post": {
                 "operationId": "v1.auth.resend",
                 "tags": [
@@ -1324,7 +1385,7 @@
                 }
             }
         },
-        "/v1/auth/reset-password": {
+        "/api/v1/auth/reset-password": {
             "post": {
                 "operationId": "v1.auth.reset",
                 "tags": [
@@ -1392,7 +1453,7 @@
                 }
             }
         },
-        "/v1/auth/sessions": {
+        "/api/v1/auth/sessions": {
             "get": {
                 "operationId": "v1.auth.sessions.index",
                 "tags": [
@@ -1478,7 +1539,7 @@
                 }
             }
         },
-        "/v1/auth/sessions/{sessionId}": {
+        "/api/v1/auth/sessions/{sessionId}": {
             "delete": {
                 "operationId": "v1.auth.sessions.destroy",
                 "tags": [
@@ -1556,7 +1617,7 @@
                 }
             }
         },
-        "/v1/auth/2fa/enroll": {
+        "/api/v1/auth/2fa/enroll": {
             "post": {
                 "operationId": "v1.auth.2fa.enroll",
                 "tags": [
@@ -1606,7 +1667,7 @@
                 }
             }
         },
-        "/v1/auth/2fa/confirm": {
+        "/api/v1/auth/2fa/confirm": {
             "post": {
                 "operationId": "v1.auth.2fa.confirm",
                 "tags": [
@@ -1661,7 +1722,7 @@
                 }
             }
         },
-        "/v1/auth/2fa/disable": {
+        "/api/v1/auth/2fa/disable": {
             "post": {
                 "operationId": "v1.auth.2fa.disable",
                 "tags": [
@@ -1713,7 +1774,7 @@
                 }
             }
         },
-        "/v1/auth/verify-email/{userId}/{token}": {
+        "/api/v1/auth/verify-email/{userId}/{token}": {
             "get": {
                 "operationId": "v1.auth.verify",
                 "tags": [
@@ -2637,6 +2698,25 @@
             }
         },
         "responses": {
+            "AuthenticationException": {
+                "description": "Unauthenticated",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            },
             "ValidationException": {
                 "description": "Validation error",
                 "content": {
@@ -2662,25 +2742,6 @@
                             "required": [
                                 "message",
                                 "errors"
-                            ]
-                        }
-                    }
-                }
-            },
-            "AuthenticationException": {
-                "description": "Unauthenticated",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "message": {
-                                    "type": "string",
-                                    "description": "Error overview."
-                                }
-                            },
-                            "required": [
-                                "message"
                             ]
                         }
                     }

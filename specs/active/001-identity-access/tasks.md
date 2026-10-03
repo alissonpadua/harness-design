@@ -39,8 +39,8 @@ One task = one session, TDD (constitution #2). AC = spec.md ids.
 - [x] T8.2 GREEN: ProfileController/actions/notifications (change-password email, email-change pair)
 
 ## T9 — Roles & admin gate + integration surface prep (AC-001.23, .26) — S8
-- [ ] T9.1 RED: `/admin/v1/ping` 403 for `user`, 200 for super-admin; `resource.action` middleware examples; expires_at column documented
-- [ ] T9.2 GREEN: spatie config, admin route file + bootstrap registration, permission catalog config, seeder assertions
+- [x] T9.1 RED: `/admin/v1/ping` 403 for `user`, 200 for super-admin; `resource.action` middleware examples; expires_at column documented
+- [x] T9.2 GREEN: spatie config, admin route file + bootstrap registration, permission catalog config, seeder assertions
 
 ## T10 — Cross-cutting hardening (AC-001.24–.25) + convergence
 - [ ] T10.1 Rate-limit config centralization test (every auth route has a bucket — reflection scan of middleware on route group)
