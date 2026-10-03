@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\Auth\RegisterController;
 use App\Http\Controllers\Api\Auth\ResendVerificationController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\SessionController;
+use App\Http\Controllers\Api\Auth\TwoFactorController;
 use App\Http\Controllers\Api\Auth\VerifyEmailController;
 use App\Http\Controllers\Api\PingController;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +56,12 @@ Route::prefix('v1/auth')->group(function (): void {
 
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('me', CurrentUserController::class)->name('api.v1.auth.me');
+
+        Route::prefix('2fa')->name('api.v1.auth.2fa.')->group(function (): void {
+            Route::post('enroll', [TwoFactorController::class, 'enroll'])->middleware('throttle:auth-2fa')->name('enroll');
+            Route::post('confirm', [TwoFactorController::class, 'confirm'])->middleware('throttle:auth-2fa')->name('confirm');
+            Route::post('disable', [TwoFactorController::class, 'disable'])->middleware('throttle:auth-2fa')->name('disable');
+        });
         Route::post('logout', LogoutController::class)->name('api.v1.auth.logout');
         Route::post('logout-all', LogoutAllController::class)->name('api.v1.auth.logout_all');
 

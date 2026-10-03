@@ -53,3 +53,9 @@
 - Arch rule "no mailer in Actions" correctly caught RequestMagicLinkAction ->notify() mid-build → refactored to MagicLinkRequested event + SendMagicLinkNotification listener. LoginAction refactored to delegate token issuance to IssueDeviceTokenAction (no duplication).
 - 87 tests, 100.0% coverage, phpstan L8 clean. openapi.json regenerated (freshness gate will pass post-commit).
 - L13 gotchas banked (see verification). Next: T5 2FA (T5.0 spike already done).
+
+## 2026-10-02 — session 7 (spec 001 T5: 2FA)
+- T5 GREEN: enroll/confirm/disable endpoints (auth:sanctum, throttle auth-2fa), TOTP (pragmarx google2fa, window 1) + 8 sha256-hashed recovery codes (single-use), mandatory policy contract (TwoFactorPolicy; default allow-all, 403 enroll-first wired into login AND magic consume — challenge before link consumption keeps links reusable), login challenge matrix, events Enabled/Disabled/RecoveryCodeUsed, QR via Bacon SVG data-url, provisioning otpauth URI. bruno/auth 2fa-* added.
+- Gotchas banked: PragmaRX casing (PSR-4 case-sensitive), Data-on-POST defaults 201 (5 controllers now set 200 explicitly), my own script truncated a controller file via open(w) before read (rewritten — beware).
+- 96 tests, 100.0% coverage, all rails green (openapi freshness = pending commit).
+- Next: T6 passkeys (asbiin webauthn 6.0 ceremonies with deterministic test fixtures — hardest remaining).

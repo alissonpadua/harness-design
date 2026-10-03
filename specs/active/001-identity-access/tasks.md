@@ -23,8 +23,8 @@ One task = one session, TDD (constitution #2). AC = spec.md ids.
 
 ## T5 — 2FA (AC-001.17–.20) — S5
 - [x] T5.0 SPIKE (DONE EARLY with T1.1): asbiin/laravel-webauthn 6.0.0 installs+publishes clean on L13 — no fallback needed
-- [ ] T5.1 RED: enroll/confirm/active/disable incl. recovery codes shown-once+single-use+hash-stored; login matrix (with/without/missing/invalid otp); force_2fa hook 403; events
-- [ ] T5.2 GREEN: TOTP service, RecoveryCodeCodec, login/otp integration, config policy closure
+- [x] T5.1 RED: enroll/confirm/active/disable incl. recovery codes shown-once+single-use+hash-stored; login matrix (with/without/missing/invalid otp); force_2fa hook 403; events
+- [x] T5.2 GREEN: TOTP service, RecoveryCodeCodec, login/otp integration, config policy closure
 
 ## T6 — Passkeys (AC-001.15–.16) — S4
 - [ ] T6.1 RED: register challenge/attest (+max 10, delete); assert discoverable+narrowed; token issuance equals AC-001.5 semantics; bad signature 401

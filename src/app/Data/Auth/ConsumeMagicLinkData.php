@@ -13,5 +13,6 @@ final class ConsumeMagicLinkData extends Data
     public function __construct(
         public readonly string $token,
         public readonly DeviceType $device_type,
+        public readonly ?string $otp = null,
     ) {}
 }

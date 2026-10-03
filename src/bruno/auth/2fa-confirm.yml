@@ -1,0 +1,25 @@
+info:
+  name: 2FA — confirm (activate)
+  type: http
+  seq: 15
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/auth/2fa/confirm"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "code": "123456"
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Replaces {{token}} semantics: on success all OTHER devices are logged out
+  and 8 recovery codes are returned ONCE. Then re-login (Login now demands
+  "otp"). Wrong code → 422.

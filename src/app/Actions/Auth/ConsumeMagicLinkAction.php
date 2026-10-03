@@ -4,14 +4,21 @@ declare(strict_types=1);
 
 namespace App\Actions\Auth;
 
+use App\Auth\TwoFactorChallenge;
+use App\Contracts\TwoFactorPolicy;
 use App\Data\Auth\ConsumeMagicLinkData;
 use App\Data\Auth\LoginTokenData;
 use App\Exceptions\AuthLinkException;
+use App\Exceptions\TwoFactorMandatoryException;
 use App\Models\AuthLink;
 
 final readonly class ConsumeMagicLinkAction
 {
-    public function __construct(private IssueDeviceTokenAction $issueToken) {}
+    public function __construct(
+        private IssueDeviceTokenAction $issueToken,
+        private TwoFactorPolicy $policy,
+        private TwoFactorChallenge $challenge,
+    ) {}
 
     public function handle(ConsumeMagicLinkData $data, string $ip, ?string $userAgent): LoginTokenData
     {
@@ -29,6 +36,13 @@ final readonly class ConsumeMagicLinkAction
             // unknown / expired / consumed / deleted-owner all identical
             throw new AuthLinkException;
         }
+
+        // Challenge BEFORE consuming so a failed 2FA leaves the link reusable (AC-001.18).
+        if ($this->policy->requires($user) && $user->two_factor_confirmed_at === null) {
+            throw new TwoFactorMandatoryException;
+        }
+
+        $this->challenge->verify($user, $data->otp);
 
         $link->forceFill(['used_at' => now()])->save();
 

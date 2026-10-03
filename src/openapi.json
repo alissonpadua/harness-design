@@ -772,6 +772,163 @@
                 }
             }
         },
+        "/v1/auth/2fa/enroll": {
+            "post": {
+                "operationId": "v1.auth.2fa.enroll",
+                "tags": [
+                    "TwoFactor"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Enrollment payload (TOTP not active until confirm).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "secret": {
+                                                    "type": "string"
+                                                },
+                                                "provisioning_uri": {
+                                                    "type": "string"
+                                                },
+                                                "qr_data_url": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "secret",
+                                                "provisioning_uri",
+                                                "qr_data_url"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/auth/2fa/confirm": {
+            "post": {
+                "operationId": "v1.auth.2fa.confirm",
+                "tags": [
+                    "TwoFactor"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConfirmTwoFactorRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Recovery codes \u2014 shown exactly once.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "recovery_codes": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "recovery_codes"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/v1/auth/2fa/disable": {
+            "post": {
+                "operationId": "v1.auth.2fa.disable",
+                "tags": [
+                    "TwoFactor"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DisableTwoFactorRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "disabled": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "disabled"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/v1/auth/verify-email/{userId}/{token}": {
             "get": {
                 "operationId": "v1.auth.verify",
@@ -847,6 +1004,19 @@
     },
     "components": {
         "schemas": {
+            "ConfirmTwoFactorRequest": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "pattern": "^\\d{6}$"
+                    }
+                },
+                "required": [
+                    "code"
+                ],
+                "title": "ConfirmTwoFactorRequest"
+            },
             "ConsumeMagicLinkRequest": {
                 "type": "object",
                 "properties": {
@@ -857,6 +1027,13 @@
                     },
                     "device_type": {
                         "$ref": "#/components/schemas/DeviceType"
+                    },
+                    "otp": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 32
                     }
                 },
                 "required": [
@@ -879,6 +1056,18 @@
                     "cli"
                 ],
                 "title": "DeviceType"
+            },
+            "DisableTwoFactorRequest": {
+                "type": "object",
+                "properties": {
+                    "password": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "password"
+                ],
+                "title": "DisableTwoFactorRequest"
             },
             "EmailRequest": {
                 "type": "object",
@@ -913,6 +1102,13 @@
                     },
                     "device_type": {
                         "$ref": "#/components/schemas/DeviceType"
+                    },
+                    "otp": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 32
                     }
                 },
                 "required": [

@@ -1,0 +1,25 @@
+info:
+  name: 2FA — enroll
+  type: http
+  seq: 14
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/auth/2fa/enroll"
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.status === 200) {
+          bru.setEnvVar('totp_secret', res.body.data.secret);
+        }
+
+docs: |-
+  AC-001.17. Returns secret + otpauth URI + inline SVG QR (data URL).
+  2FA is NOT active until confirm. Store the secret (env var) to compute a
+  code in Bruno: use a pre-request script with an OTP lib, or paste from an
+  authenticator app enrolled via the QR.

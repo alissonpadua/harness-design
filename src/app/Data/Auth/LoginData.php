@@ -14,5 +14,6 @@ final class LoginData extends Data
         public readonly string $email,
         public readonly string $password,
         public readonly DeviceType $device_type,
+        public readonly ?string $otp = null,
     ) {}
 }

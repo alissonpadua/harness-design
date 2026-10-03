@@ -24,6 +24,7 @@ final class LoginRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'string'],
             'device_type' => ['required', Rule::enum(DeviceType::class)],
+            'otp' => ['nullable', 'string', 'max:32'],
         ];
     }
 }

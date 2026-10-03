@@ -52,6 +52,8 @@ final readonly class ApiErrorRenderer
             $exception instanceof AuthenticationException => [401, 'Unauthenticated.', []],
             $exception instanceof LoginFailedException => [401, 'These credentials do not match our records.', []],
             $exception instanceof EmailNotVerifiedException => [403, 'Please verify your email address.', []],
+            $exception instanceof TwoFactorRequiredException => [401, 'Two factor authentication is required.', []],
+            $exception instanceof TwoFactorMandatoryException => [403, 'Two factor authentication is mandatory for your organization.', ['two_factor' => ['required']]],
             $exception instanceof AuthLinkException => [403, AuthLinkException::GENERIC_MESSAGE, []],
             $exception instanceof ModelNotFoundException => [404, 'Not Found', []],
             default => self::fromHttp($exception),

@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Auth;
 
-use App\Enums\DeviceType;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-final class ConsumeMagicLinkRequest extends FormRequest
+final class DisableTwoFactorRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -21,9 +19,7 @@ final class ConsumeMagicLinkRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'token' => ['required', 'string', 'size:64'],
-            'device_type' => ['required', Rule::enum(DeviceType::class)],
-            'otp' => ['nullable', 'string', 'max:32'],
+            'password' => ['required', 'string'],
         ];
     }
 }
