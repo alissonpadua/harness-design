@@ -17,6 +17,10 @@ use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\SessionController;
 use App\Http\Controllers\Api\Auth\TwoFactorController;
 use App\Http\Controllers\Api\Auth\VerifyEmailController;
+use App\Http\Controllers\Api\Org\InviteController;
+use App\Http\Controllers\Api\Org\InviteLinkController;
+use App\Http\Controllers\Api\Org\MemberController;
+use App\Http\Controllers\Api\Org\OrganizationController;
 use App\Http\Controllers\Api\PingController;
 use App\Http\Controllers\Api\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -102,6 +106,39 @@ Route::prefix('v1/auth')->group(function (): void {
         });
     });
 });
+
+Route::prefix('v1/orgs')->middleware(['auth:sanctum', 'throttle:org-mutations'])->name('api.v1.orgs.')->group(function (): void {
+    Route::get('/', [OrganizationController::class, 'index'])->name('index');
+    Route::post('/', [OrganizationController::class, 'store'])->name('store');
+    Route::get('{organization}', [OrganizationController::class, 'show'])->name('show');
+    Route::patch('{organization}', [OrganizationController::class, 'update'])->name('update');
+    Route::delete('{organization}', [OrganizationController::class, 'destroy'])->name('destroy');
+    Route::post('{organization}/switch', [OrganizationController::class, 'switch'])->name('switch');
+    Route::get('{organization}/members', [MemberController::class, 'index'])->name('members.index');
+    Route::patch('{organization}/members/{user}', [MemberController::class, 'update'])->whereNumber('user')->name('members.update');
+    Route::post('{organization}/members/{user}/suspend', [MemberController::class, 'suspend'])->whereNumber('user')->name('members.suspend');
+    Route::post('{organization}/members/{user}/unsuspend', [MemberController::class, 'unsuspend'])->whereNumber('user')->name('members.unsuspend');
+    Route::delete('{organization}/members/{user}', [MemberController::class, 'destroy'])->whereNumber('user')->name('members.destroy');
+
+    Route::get('{organization}/invites', [InviteController::class, 'index'])->name('invites.index');
+    Route::post('{organization}/invites', [InviteController::class, 'store'])->name('invites.store');
+    Route::delete('{organization}/invites/{invite}', [InviteController::class, 'destroy'])->whereNumber('invite')->name('invites.destroy');
+
+    Route::get('{organization}/invite-links', [InviteLinkController::class, 'index'])->name('links.index');
+    Route::post('{organization}/invite-links', [InviteLinkController::class, 'store'])->name('links.store');
+    Route::delete('{organization}/invite-links/{link}', [InviteLinkController::class, 'destroy'])->whereNumber('link')->name('links.destroy');
+
+    Route::post('{organization}/leave', [MemberController::class, 'leave'])->name('leave');
+    Route::post('{organization}/transfer-ownership', [MemberController::class, 'transfer'])->name('transfer');
+});
+
+Route::post('v1/invites/accept', [InviteController::class, 'accept'])
+    ->middleware(['auth:sanctum', 'throttle:org-mutations'])
+    ->name('api.v1.invites.accept');
+
+Route::post('v1/invite-links/join', [InviteLinkController::class, 'join'])
+    ->middleware(['auth:sanctum', 'throttle:org-mutations'])
+    ->name('api.v1.invitelinks.join');
 
 Route::prefix('v1/profile')->middleware('auth:sanctum')->name('api.v1.profile.')->group(function (): void {
     Route::get('/', [ProfileController::class, 'show'])->name('show');

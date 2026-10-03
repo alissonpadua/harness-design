@@ -10,6 +10,8 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -25,6 +27,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string|null $two_factor_secret
  * @property array<int, string>|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
+ * @property-read OrganizationMembership|null $membership
  */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden([
@@ -47,6 +50,24 @@ class User extends Authenticatable implements MustVerifyEmail
             'two_factor_secret' => 'encrypted',
             'two_factor_recovery_codes' => 'encrypted:array',
         ];
+    }
+
+    /** @return BelongsToMany<Organization, $this, OrganizationMembership, 'membership'> */
+    public function organizations(): BelongsToMany
+    {
+        return $this->belongsToMany(Organization::class)->using(OrganizationMembership::class)->withPivot(['id', 'role', 'status', 'invited_by', 'created_at'])->withTimestamps()->as('membership');
+    }
+
+    /** @return HasMany<OrganizationMembership, $this> */
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(OrganizationMembership::class);
+    }
+
+    /** @return BelongsTo<Organization, $this> */
+    public function currentOrganization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class, 'current_organization_id');
     }
 
     /** @return HasMany<WebauthnKey, $this> */

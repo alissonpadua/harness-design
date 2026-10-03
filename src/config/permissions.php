@@ -19,6 +19,21 @@ return [
 
     'catalog' => [
         'admin.access' => 'Enter the admin plane (/admin/v1/*)',
+
+        // spec 002 — organization plane
+        'org.view' => 'Read organization profile and settings',
+        'org.update' => 'Change organization settings',
+        'org.delete' => 'Delete the organization (owner only)',
+        'org.transfer' => 'Transfer ownership (owner only)',
+        'members.view' => 'List members',
+        'members.invite' => 'Invite members',
+        'members.update_role' => 'Change member roles',
+        'members.suspend' => 'Suspend / reactivate members',
+        'members.remove' => 'Remove members',
+        'invites.view' => 'List pending invites',
+        'invites.revoke' => 'Revoke pending invites',
+        'invite_links.manage' => 'Create / revoke invite links',
+        'billing.view' => 'View billing (consumed by spec 003)',
     ],
 
 ];

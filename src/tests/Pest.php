@@ -20,7 +20,7 @@ pest()->extend(TestCase::class)
     ->in('Feature', 'Architecture', 'Unit');
 
 uses(RefreshDatabase::class)
-    ->in('Feature/M001_Identity');
+    ->in('Feature/M001_Identity', 'Feature/M002_Tenancy');
 
 /*
 |--------------------------------------------------------------------------

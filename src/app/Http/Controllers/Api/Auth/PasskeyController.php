@@ -21,6 +21,7 @@ use App\Models\User;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use LaravelWebauthn\Models\WebauthnKey;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 final class PasskeyController extends Controller
@@ -53,7 +54,7 @@ final class PasskeyController extends Controller
         $user = $request->user();
 
         return new PasskeyListData(
-            $user->passkeys()->latest()->get()->map(fn ($key) => PasskeyData::make($key))->all()
+            $user->passkeys()->latest()->get()->map(fn (WebauthnKey $key) => PasskeyData::make($key))->all()
         );
     }
 

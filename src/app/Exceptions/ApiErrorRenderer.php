@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Exceptions\UnauthorizedException;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
@@ -55,6 +57,9 @@ final readonly class ApiErrorRenderer
             $exception instanceof TwoFactorRequiredException => [401, 'Two factor authentication is required.', []],
             $exception instanceof TwoFactorMandatoryException => [403, 'Two factor authentication is mandatory for your organization.', ['two_factor' => ['required']]],
             $exception instanceof AuthLinkException => [403, AuthLinkException::GENERIC_MESSAGE, []],
+            $exception instanceof SubscriptionRequiredException => [402, 'Subscription required.', []],
+            $exception instanceof OrgTokenException => [403, OrgTokenException::MESSAGE, []],
+            $exception instanceof LastOwnerException => [409, 'The organization must keep an owner.', []],
             $exception instanceof ModelNotFoundException => [404, 'Not Found', []],
             default => self::fromHttp($exception),
         };
@@ -76,12 +81,19 @@ final readonly class ApiErrorRenderer
 
         $status = $exception->getStatusCode();
 
-        // Laravel converts AuthorizationException into AccessDeniedHttpException before render.
-        if ($status === 403) {
+        // framework/spatie authz failures keep the generic message; explicit
+        // HttpExceptions (403 gates etc.) carry their own domain message.
+        if ($exception instanceof AccessDeniedHttpException || $exception instanceof UnauthorizedException) {
             return [403, 'This action is unauthorized.', []];
         }
 
-        $message = $status === 404 ? 'Not Found' : (HttpResponse::$statusTexts[$status] ?? 'Error');
+        $message = match (true) {
+            $status === 404 => 'Not Found',
+            $status === 405 => 'Method Not Allowed',
+            $status === 429 => 'Too Many Requests',
+            $exception->getMessage() !== '' => $exception->getMessage(),
+            default => HttpResponse::$statusTexts[$status] ?? 'Error',
+        };
 
         return [$status, $message, []];
     }
