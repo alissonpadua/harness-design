@@ -31,8 +31,12 @@ final readonly class CreatePersonalWorkspaceAction
             return $existing;
         }
 
+        $name = sprintf(config('tenancy.personal_workspace.name_pattern'), $user->name);
+
+        // explicit slug: seeders run with WithoutModelEvents, booted() hooks off
         $org = Organization::create([
-            'name' => sprintf(config('tenancy.personal_workspace.name_pattern'), $user->name),
+            'name' => $name,
+            'slug' => Organization::uniqueSlug($name),
             'type' => OrgType::Personal,
             'owner_id' => $user->id,
         ]);
