@@ -100,3 +100,13 @@
 - S1–S7 evidenced → feature_list 002 passes:true. (001 also true from last session.)
 - L8/quality loop notes: docblock-must-precede-attributes bit again on @use trait generics (inline /** @use */ above the trait `use` statement wins); two consecutive class docblocks orphan each other — merged; OrgInviteNotification takes org name (belongsTo nullable inference).
 - Next: spec 003 — Billing (plans in DB + entitlement rebind — flips 010 AC-002.6/<90s convergence once landed together w/ 002's golden fixture usage).
+
+## 2026-10-03 — session 15 (client-demo frontend, bulk-approved)
+- scaffolded client-demo from satnaing/shadcn-admin (Vite+React+TS+shadcn, TanStack Router/Query, Zustand). Clerk removed; real auth wired: sign-in (+OTP step, passkey discoverable, OAuth buttons+callback route, magic-link card), sign-up (+verified-pending step, resend), forgot/reset routes, verify/confirm-email link handlers; guard via beforeLoad + global 401→sign-in; token in localStorage; vite proxies /api+/admin→:8080 (no CORS).
+- Organizations: home (cards, create w/ 402 toast, accept-invite & join-link token forms) + detail tabs (members table w/ role/suspend/remove, invites, links w/ clipboard token, settings incl require_2fa, danger: leave/transfer(password+OTP)/delete confirm-text) + sidebar org switcher wired to users.current_organization_id. Settings: Profile (name/locale/timezone + email change + delete account), Security (2FA enroll QR/confirm/recovery codes/disable + passkeys CRUD), Sessions (revoke/current/logout-all), admin-check probe page.
+- Backend tweaks for the demo: seeder account verified+strong password+personal workspace (explicit slug — WithoutModelEvents skips creating hooks; action hardened), client-demo .npmrc --use-system-ca for Zscaler MITM (pnpm bundled CA), README with run matrix.
+- Verified: pnpm build + tsc + eslint 0 errors; backend still 182 tests/100% coverage/check.sh green.
+
+## 2026-10-03 — session 16 (CRM page, frontend-only)
+- NOTE: client-demo/ is now git-ignored (throwaway UI test, never commit).
+- Added /crm route (sidebar, authenticated area): stats (contacts/open/pipeline/win-rate, currency via user locale), Deals tab (inline stage select kanban-lite, filter, open-only, create dialog, delete cascading from contacts), Contacts tab (filter, create/edit dialog with notes, delete removes deals). Zustand store persisted to localStorage ('bp-crm-demo'), seeded demo data + reset button. No backend endpoints used — page self-describes as demo; real CRM module will replace the store behind the same screens. pnpm build+tsc+eslint clean (1 pre-existing warning).
