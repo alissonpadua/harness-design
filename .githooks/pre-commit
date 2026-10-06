@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Wired gate: Cloudflare security-audit skill (see .agents/skills/security-audit).
+# Real logic lives in harness/scripts/security-audit.sh (shared with CI).
+# Escape hatches: SECURITY_AUDIT=off <one run>  |  git commit --no-verify <skip entirely>.
+set -uo pipefail
+exec "$(git rev-parse --show-toplevel)/harness/scripts/security-audit.sh" --scope staged

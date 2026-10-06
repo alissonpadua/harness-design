@@ -37,7 +37,8 @@ Reads via Models/Resources. Details: `docs/architecture.md`, conventions: `docs/
 - `docs/` — architecture, api-conventions, adr/ (READ; propose ADR via PR, don't rewrite silently)
 - `specs/active/NNN-*/` — spec.md (contract) / plan.md / tasks.md / verification.md
 - `harness/` — feature_list.json (acceptance truth), progress.md (journal), scripts/
-- `.agents/` — skills (procedures), subagents (reviewers), hooks (guardrails)
+- `.agents/` — skills (procedures, incl. vendored `security-audit` from cloudflare/security-audit-skill), subagents (reviewers), hooks (guardrails)
+- `.githooks/pre-commit` — WIRED: runs the security-audit gate on staged changes (`harness/scripts/security-audit.sh`; env toggles + CI mirror documented in `.githooks/README.md`)
 - `src/` — Laravel 13 / PHP 8.4 app; app-level guide: `src/AGENTS.md`; API collection: `src/bruno/` (OpenCollection YAML — implemented endpoints only, env `local` = http://localhost:8080)
 
 ## Module map

@@ -150,17 +150,17 @@ These are reviewer prompts run in a **clean context** (no author bias). They do 
 
 In tools with native subagent support (Claude Code `.claude/agents`, Codex, opencode agents) you can copy/wire these files there so the orchestrator spawns them; otherwise the main agent reads the definition and executes it as a Task with fresh context.
 
-### 4. Hooks (`.agents/hooks/`) — deterministic guardrails, status: **proposed**
-Hooks are the only *automatic* layer, but they are runtime configuration — they must be registered in the tool you run agents with (e.g. Claude Code `settings.json` hooks, opencode plugin events, or simply CI). This repo defines the *intended* hook set in `.agents/hooks/README.md`:
+### 4. Hooks (`.agents/hooks/` + `.githooks/`) — deterministic guardrails, status: **partially wired**
+Some hooks are runtime configuration (Claude Code `settings.json`, opencode events) and remain *proposed*; the **pre-commit security gate is actually wired** as a tracked git hook via `core.hooksPath=.githooks`. This repo defines the *intended* set in `.agents/hooks/README.md` and the wired one in `.githooks/README.md`:
 
 | Hook | Action |
 |---|---|
 | session-start | tail `harness/progress.md`, `git log -15`, run `harness/init.sh` + smoke |
 | post-edit | run Pint + the focused Pest filter for the touched file |
-| pre-commit | `check.sh`; block edits to `specs/*/spec.md`, `feature_list.json` (status fields only), `constitution.md` |
+| pre-commit | **WIRED:** `.githooks/pre-commit` → `harness/scripts/security-audit.sh` (Cloudflare **security-audit** skill: staged secret scan → skill validators → headless audit of the staged diff; blocks on confirmed findings ≥ `SECURITY_AUDIT_BLOCK`). Also blocks secret-laden edits. *(The `check.sh` / protected-file checks remain a proposal.)* |
 | stop | require journal append + `tasks.md` tick in the same commit |
 
-**Until someone wires them into a runtime, the enforcement you can trust is the deterministic one:** `check.sh` (local == `ci.yml`) and the PR gates (`pr-checks.yml` runs both gate scripts + their `selftest.sh`). CI is the backstop that cannot be forgotten.
+**The enforcement you can trust is the deterministic one:** the wired `security-audit` pre-commit (mirrored by the `security-audit` job in `ci.yml`), `check.sh` (local == `ci.yml`), and the PR gates (`pr-checks.yml`). Bypass is loud only: `git commit --no-verify` or `SECURITY_AUDIT=off`. CI re-runs the deterministic stages regardless.
 
 ### 5. State files — the agent's long-term memory
 - `harness/feature_list.json` — acceptance truth. Only `passes` / `verified_at` / `verification` fields change, and only with evidence.

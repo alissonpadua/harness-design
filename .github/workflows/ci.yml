@@ -17,3 +17,26 @@ jobs:
           docker compose exec -T app php artisan key:generate --force
       - name: Full verification (identical to local)
         run: harness/scripts/check.sh
+
+  security-audit:
+    name: Security audit (Cloudflare skill — deterministic gate)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Secret scan + skill validators (mirror of pre-commit stages 1-2)
+        env:
+          SECURITY_AUDIT_STRICT: '1'
+          SECURITY_AUDIT_BASE: ${{ github.base_ref || 'main' }}
+        run: |
+          bash harness/scripts/install-hooks.sh
+          harness/scripts/security-audit.sh --scope staged
+      - name: Upload audit artifacts when present
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-artifacts
+          path: harness/audits/current/
+          if-no-files-found: ignore

@@ -6,3 +6,7 @@ src/storage/*.key
 
 # Frontend demo playground (local only — not part of the boilerplate)
 client-demo/
+
+# security-audit working artifacts (regenerated per commit; keep dir)
+harness/audits/current/*
+!harness/audits/current/.gitkeep

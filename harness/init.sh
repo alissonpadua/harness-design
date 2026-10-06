@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # harness/init.sh — idempotent environment boot. Safe to run blindfolded every session.
 set -euo pipefail
-cd "$(dirname "$0")/../src"
+HARNESS_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$HARNESS_DIR/../src"
 
 # parallel worktrees: export COMPOSE_PROJECT_NAME=bp-<branch> before calling
 export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-bp}"
@@ -17,6 +18,8 @@ docker compose exec -T app bash -lc '
   [ -f vendor/autoload.php ] || composer install --no-interaction --prefer-dist
   grep -q "^APP_KEY=base64:" .env || php artisan key:generate --force
 '
+
+bash "$HARNESS_DIR/scripts/install-hooks.sh"
 
 docker compose exec -T app php artisan migrate --force
 docker compose exec -T app php artisan db:seed --force 2>/dev/null || true
