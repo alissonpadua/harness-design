@@ -6,8 +6,7 @@ use App\Contracts\TwoFactorPolicy;
 use App\Events\Auth\UserRegistered;
 use App\Models\OauthAccount;
 use App\Models\User;
-use App\Notifications\EmailVerificationNotification;
-use App\Notifications\ResetPasswordNotification;
+use App\Notifications\CatalogDelivery;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
@@ -112,7 +111,7 @@ test('new facebook email creates UNVERIFIED user → 403 verify gate + verificat
 
     $user = User::whereEmail('fb@example.com')->firstOrFail();
     expect($user->email_verified_at)->toBeNull()->and($user->tokens()->count())->toBe(0);
-    Notification::assertSentTo($user, EmailVerificationNotification::class);
+    Notification::assertSentTo($user, CatalogDelivery::class, fn (CatalogDelivery $n) => $n->type === 'auth.email_verification');
 });
 
 test('facebook identity whose email matches an existing UNVERIFIED account does not link nor duplicate', function () {
@@ -135,7 +134,7 @@ test('password-less account can set one via forgot-password flow (indistinguisha
     Notification::fake();
     $this->postJson('/api/v1/auth/forgot-password', ['email' => 'pass@example.com'])
         ->assertStatus(202)->assertExactJson(['data' => ['accepted' => true]]);
-    Notification::assertSentTo(User::whereEmail('pass@example.com')->firstOrFail(), ResetPasswordNotification::class);
+    Notification::assertSentTo(User::whereEmail('pass@example.com')->firstOrFail(), CatalogDelivery::class, fn (CatalogDelivery $n) => $n->type === 'auth.password_reset');
 });
 
 test('linked to soft-deleted account → generic 401, no resurrection, no new link row', function () {

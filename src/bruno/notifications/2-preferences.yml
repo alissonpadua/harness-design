@@ -1,0 +1,18 @@
+info:
+  name: Preferences
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{baseUrl}/api/v1/notifications/preferences"
+  auth:
+    type: bearer
+    token: "{token}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+

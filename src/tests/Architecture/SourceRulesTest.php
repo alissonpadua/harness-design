@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Notifications\Contracts\CatalogNotification;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\SourceScan;
 
@@ -105,4 +106,45 @@ it('declares model attributes only via properties + casts() method', function ()
             expect($src)->not->toMatch('/'.$pattern.'/', basename($file).': '.$hint);
         }
     }
+});
+
+/* ───────────────────── notification catalog rules (spec 004) ─────────────── */
+
+it('keeps every Types class a CatalogNotification implementation', function () {
+    foreach (glob(app_path('Notifications/Types/*.php')) ?: [] as $file) {
+        $class = 'App\\Notifications\\Types\\'.basename($file, '.php');
+        $implements = class_implements($class) ?: [];
+
+        expect(isset($implements[CatalogNotification::class]))
+            ->toBeTrue($class.' must implement CatalogNotification');
+    }
+});
+
+it('funnels all notifications through the dispatcher and delivery job', function () {
+    $allowed = [
+        'app/Jobs/Notifications/DeliverNotification.php', // sendNow
+        'app/Actions/Notifications/SweepFailed.php',      // retry sendNow
+    ];
+
+    $violations = [];
+
+    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(app_path())) as $file) {
+        if (! $file->isFile() || $file->getExtension() !== 'php') {
+            continue;
+        }
+
+        $rel = str_replace(base_path().'/', '', $file->getPathname());
+
+        if (in_array($rel, $allowed, true)) {
+            continue;
+        }
+
+        $src = (string) file_get_contents($file->getPathname());
+
+        if (preg_match('/->notify\(|Notification::send\(/', $src)) {
+            $violations[] = $rel;
+        }
+    }
+
+    expect($violations)->toBe([], 'raw notify() calls must go through DispatchNotification');
 });

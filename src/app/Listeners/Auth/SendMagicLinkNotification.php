@@ -4,16 +4,23 @@ declare(strict_types=1);
 
 namespace App\Listeners\Auth;
 
+use App\Actions\Notifications\DispatchNotification;
 use App\Events\Auth\MagicLinkRequested;
 use App\Models\AuthLink;
-use App\Notifications\MagicLinkNotification;
 
-final class SendMagicLinkNotification
+final readonly class SendMagicLinkNotification
 {
+    public function __construct(private DispatchNotification $notify) {}
+
     public function handle(MagicLinkRequested $event): void
     {
-        $link = AuthLink::issue($event->user, 'magic_link', minutes: (int) config('auth.links.magic_link_minutes'));
+        $minutes = (int) config('auth.links.magic_link_minutes');
+        $link = AuthLink::issue($event->user, 'magic_link', minutes: $minutes);
 
-        $event->user->notify(new MagicLinkNotification($link));
+        $this->notify->user($event->user, 'auth.magic_link', [
+            'token' => (string) $link->token,
+            'minutes' => $minutes,
+            'expires_at' => (string) $link->expires_at,
+        ]);
     }
 }

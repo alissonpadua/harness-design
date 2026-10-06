@@ -23,8 +23,15 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    // Reverb proxies private-channel auth here (spec 004 S3).
+    ->withBroadcasting(
+        __DIR__.'/../routes/channels.php',
+        ['middleware' => ['auth:sanctum']],
+    )
     ->withSchedule(function (Schedule $schedule): void {
         $schedule->command('billing:dunning')->hourly()->withoutOverlapping();
+        $schedule->command('notifications:sweep-failed')->everyFifteenMinutes()->withoutOverlapping();
+        $schedule->command('notifications:trial-reminders')->dailyAt('08:00')->withoutOverlapping();
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append([

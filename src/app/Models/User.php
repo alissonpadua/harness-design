@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Notifications\ResetPasswordNotification;
+use App\Actions\Notifications\DispatchNotification;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -58,6 +58,17 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Organization::class)->using(OrganizationMembership::class)->withPivot(['id', 'role', 'status', 'invited_by', 'created_at'])->withTimestamps()->as('membership');
     }
 
+    public function routeNotificationForBroadcast(mixed $notification = null): string
+    {
+        return 'user.'.$this->id;
+    }
+
+    /** @return HasMany<NotificationPreference, $this> */
+    public function notificationPreferences(): HasMany
+    {
+        return $this->hasMany(NotificationPreference::class);
+    }
+
     /** @return HasMany<OrganizationMembership, $this> */
     public function memberships(): HasMany
     {
@@ -81,6 +92,6 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function sendPasswordResetNotification($token): void
     {
-        $this->notify(new ResetPasswordNotification($token));
+        app(DispatchNotification::class)->user($this, 'auth.password_reset', ['token' => $token]);
     }
 }

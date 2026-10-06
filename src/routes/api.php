@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\Auth\VerifyEmailController;
 use App\Http\Controllers\Api\Billing\BillingController;
 use App\Http\Controllers\Api\Billing\CheckoutReturnController;
 use App\Http\Controllers\Api\Billing\WebhookController;
+use App\Http\Controllers\Api\Notifications\NotificationController;
 use App\Http\Controllers\Api\Org\InviteController;
 use App\Http\Controllers\Api\Org\InviteLinkController;
 use App\Http\Controllers\Api\Org\MemberController;
@@ -165,6 +166,14 @@ Route::get('v1/billing/checkout/return', CheckoutReturnController::class)
 Route::post('v1/billing/webhook/stripe', WebhookController::class)
     ->middleware('throttle:billing-webhook')
     ->name('api.v1.billing.webhook');
+
+Route::prefix('v1/notifications')->middleware('auth:sanctum')->name('api.v1.notifications.')->group(function (): void {
+    Route::get('/', [NotificationController::class, 'index'])->name('index');
+    Route::get('preferences', [NotificationController::class, 'preferences'])->name('preferences.show');
+    Route::put('preferences', [NotificationController::class, 'updatePreferences'])
+        ->middleware('throttle:billing')
+        ->name('preferences.update');
+});
 
 Route::prefix('v1/profile')->middleware('auth:sanctum')->name('api.v1.profile.')->group(function (): void {
     Route::get('/', [ProfileController::class, 'show'])->name('show');

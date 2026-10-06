@@ -9,7 +9,7 @@ use App\Enums\OrgRole;
 use App\Models\OrganizationInvite;
 use App\Models\Scopes\OrganizationScope;
 use App\Models\User;
-use App\Notifications\OrgInviteNotification;
+use App\Notifications\NotificationCatalog;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
@@ -109,10 +109,14 @@ test('invite notification renders org name, role and token', function () {
     $invite = OrganizationInvite::makeWithToken();
     $invite->forceFill(['organization_id' => $org->id, 'email' => 'm@mm.io', 'role' => 'admin', 'invited_by' => $ada->id, 'expires_at' => now()->addDay()])->save();
 
-    $mail = (new OrgInviteNotification($invite, $org->name))->toMail($ada);
+    $mail = app(NotificationCatalog::class)->get('org.invite_received')->mailable([
+        'org_name' => $org->name, 'role' => 'admin', 'url' => 'http://api.test/accept-invite/'.$invite->token(),
+    ]);
 
-    expect($mail->subject)->toBe("You've been invited to join Mailer Co")
-        ->and(implode(' ', [...$mail->introLines, ...$mail->outroLines]))->toContain($invite->token())->toContain('admin');
+    $rendered = $mail->render();
+    expect($mail->envelope()->subject)->toBe('You were invited to Mailer Co')
+        ->and(implode(' ', $mail->buildViewData()['lines']))->toContain('admin')
+        ->and($rendered)->toContain($invite->token());
 });
 
 test('personal workspace replay backfills a null current pointer', function () {

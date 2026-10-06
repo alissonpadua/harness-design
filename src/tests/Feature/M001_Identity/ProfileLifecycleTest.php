@@ -7,8 +7,8 @@ use App\Events\Auth\PasswordChanged;
 use App\Exceptions\AuthLinkException;
 use App\Models\AuthLink;
 use App\Models\User;
-use App\Notifications\EmailChangeNewAddressNotification;
-use App\Notifications\EmailChangeOldAddressNotification;
+use App\Notifications\CatalogDelivery;
+use App\Notifications\NotificationCatalog;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
@@ -22,11 +22,18 @@ beforeEach(function () {
 function captureEmailChangeToken(User $user): string
 {
     $token = null;
-    Notification::assertSentTo($user, EmailChangeNewAddressNotification::class, function (EmailChangeNewAddressNotification $n) use (&$token) {
-        $token = $n->link->token;
+    Notification::assertSentOnDemand(
+        CatalogDelivery::class,
+        function (CatalogDelivery $n, $notifiable, $channel) use (&$token) {
+            if ($n->type !== 'auth.email_change' || ($n->data['variant'] ?? null) !== 'to_new') {
+                return false;
+            }
 
-        return true;
-    });
+            $token = basename((string) parse_url((string) $n->data['url'], PHP_URL_PATH));
+
+            return true;
+        },
+    );
 
     return (string) $token;
 }
@@ -73,15 +80,22 @@ test('email change: request stages a confirm link, notifies both addresses, does
         ->assertStatus(202)->assertExactJson(['data' => ['accepted' => true]]);
 
     expect($user->refresh()->email)->toBe('ada@example.com');
-    Notification::assertSentTo($user, EmailChangeNewAddressNotification::class);
-    Notification::assertSentTo($user, EmailChangeOldAddressNotification::class);
+    Notification::assertSentOnDemand(CatalogDelivery::class, fn (CatalogDelivery $n) => $n->type === 'auth.email_change' && ($n->data['variant'] ?? null) === 'to_new');
+    Notification::assertSentTo($user, CatalogDelivery::class, fn (CatalogDelivery $n) => $n->type === 'auth.email_change' && ($n->data['variant'] ?? null) === 'to_old');
 
     $captured = null;
-    Notification::assertSentTo($user, EmailChangeNewAddressNotification::class, function (EmailChangeNewAddressNotification $n) use (&$captured) {
-        $captured = [$n->link->token, $n->link->email];
+    Notification::assertSentOnDemand(
+        CatalogDelivery::class,
+        function (CatalogDelivery $n) use (&$captured) {
+            if ($n->type !== 'auth.email_change' || ($n->data['variant'] ?? null) !== 'to_new') {
+                return false;
+            }
 
-        return true;
-    });
+            $captured = [basename((string) parse_url((string) $n->data['url'], PHP_URL_PATH)), (string) $n->data['to']];
+
+            return true;
+        },
+    );
     expect($captured[1])->toBe('ada2@example.com');
 });
 
@@ -205,18 +219,19 @@ test('email-change notifications render correct recipients and content', functio
     $user = User::factory()->create(['email' => 'ada@example.com']);
     $link = AuthLink::issue($user, 'confirm_email_change', email: 'ada2@example.com');
 
-    $new = new EmailChangeNewAddressNotification($link, 'ada2@example.com');
-    expect($new->via($user))->toBe(['mail'])
-        ->and($new->routeNotificationForMail($user))->toBe('ada2@example.com');
-    $newMail = $new->toMail($user);
-    expect($newMail->subject)->toBe('Confirm your new email address')
-        ->and($newMail->actionUrl)->toBe(rtrim((string) config('app.url'), '/')."/api/v1/auth/confirm-email/{$user->id}/{$link->token}");
+    $catalog = app(NotificationCatalog::class);
+    $url = rtrim((string) config('app.url'), '/')."/api/v1/auth/confirm-email/{$user->id}/{$link->token}";
 
-    $old = new EmailChangeOldAddressNotification('ada2@example.com');
-    expect($old->via($user))->toBe(['mail']);
-    $oldMail = $old->toMail($user);
-    expect($oldMail->subject)->toBe('Your email address is being changed')
-        ->and(implode(' ', [...$oldMail->introLines, ...$oldMail->outroLines]))->toContain('ada2@example.com');
+    $newMail = $catalog->get('auth.email_change')->mailable(['variant' => 'to_new', 'to' => 'ada2@example.com', 'url' => $url]);
+    expect($newMail->envelope()->subject)->toBe('Confirm your new email address')
+        ->and($newMail->actionUrl)->toBe($url);
+
+    $oldMail = $catalog->get('auth.email_change')->mailable(['variant' => 'to_old', 'from' => 'ada@example.com', 'to' => 'ada2@example.com']);
+    expect($oldMail->envelope()->subject)->toBe('Your email address was changed')
+        ->and(implode(' ', $oldMail->buildViewData()['lines']))->toContain('ada2@example.com');
+
+    // the user lane keeps mail+inbox+broadcast; the unconfirmed address gets mail only
+    expect((new CatalogDelivery('auth.email_change', []))->via($user))->toBe(['mail', 'database', 'broadcast']);
 });
 
 test('confirm-email for nonexistent user is the same generic 403', function () {

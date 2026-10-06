@@ -1,0 +1,30 @@
+info:
+  name: Update preferences
+  type: http
+  seq: 3
+
+http:
+  method: PUT
+  url: "{baseUrl}/api/v1/notifications/preferences"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "notifications": {
+          "billing.invoice_paid": { "email": false }
+        }
+      }
+  auth:
+    type: bearer
+    token: "{token}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+docs: Locked security types reject changes with 422.

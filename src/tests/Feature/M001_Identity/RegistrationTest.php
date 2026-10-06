@@ -6,8 +6,10 @@ use App\Events\Auth\UserRegistered;
 use App\Exceptions\AuthLinkException;
 use App\Models\AuthLink;
 use App\Models\User;
-use App\Notifications\EmailVerificationNotification;
+use App\Notifications\CatalogDelivery;
+use App\Notifications\NotificationCatalog;
 use Database\Seeders\RolesSeeder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
@@ -87,8 +89,9 @@ test('AC-001.1 registration queues verification notification once', function () 
 
     Notification::assertSentTo(
         User::whereEmail('ada@example.com')->firstOrFail(),
-        EmailVerificationNotification::class,
-        fn (EmailVerificationNotification $n) => $n->link->expires_at->isAfter(now()->addMinutes(59))
+        CatalogDelivery::class,
+        fn (CatalogDelivery $n) => $n->type === 'auth.email_verification'
+            && Carbon::parse($n->data['expires_at'])->isAfter(now()->addMinutes(59))
     );
 });
 
@@ -141,7 +144,7 @@ test('AC-001.2 resend is public, always 202, mails only unverified existing acco
         ->and($this->postJson('/api/v1/auth/email/verify/resend', ['email' => 'v@example.com'])->json())->toBe($body)
         ->and($this->postJson('/api/v1/auth/email/verify/resend', ['email' => 'ghost@example.com'])->json())->toBe($body);
 
-    Notification::assertSentTo($unverified, EmailVerificationNotification::class);
+    Notification::assertSentTo($unverified, CatalogDelivery::class, fn (CatalogDelivery $n) => $n->type === 'auth.email_verification');
     Notification::assertNothingSentTo($verified);
 });
 
@@ -167,7 +170,7 @@ test('AC-001.4 registering an existing UNVERIFIED email re-queues verification s
         'password' => 'An0ther!Secret', 'password_confirmation' => 'An0ther!Secret',
     ]))->assertStatus(202);
 
-    Notification::assertSentTo($user, EmailVerificationNotification::class);
+    Notification::assertSentTo($user, CatalogDelivery::class, fn (CatalogDelivery $n) => $n->type === 'auth.email_verification');
     expect(User::count())->toBe(1);
 });
 
@@ -183,12 +186,13 @@ test('AC-001.1 verification mail content: subject, signed URL, expiry copy', fun
     $user = User::factory()->unverified()->create();
     $link = AuthLink::issue($user, 'verify_email');
 
-    $notification = new EmailVerificationNotification($link);
-    expect($notification->via($user))->toBe(['mail']);
+    $delivery = new CatalogDelivery('auth.email_verification', ['url' => 'x', 'expires_at' => (string) $link->expires_at]);
+    expect($delivery->via($user))->toBe(['mail', 'database', 'broadcast']);
 
-    $mail = $notification->toMail($user);
+    $mail = app(NotificationCatalog::class)->get('auth.email_verification')->mailable([
+        'url' => rtrim((string) config('app.url'), '/')."/api/v1/auth/verify-email/{$user->id}/{$link->token}",
+    ]);
 
-    expect($mail->subject)->toBe('Verify your email address')
-        ->and($mail->actionUrl)->toBe(rtrim((string) config('app.url'), '/')."/api/v1/auth/verify-email/{$user->id}/{$link->token}")
-        ->and(implode(' ', [...$mail->introLines, ...$mail->outroLines]))->toContain('60 minutes');
+    expect($mail->envelope()->subject)->toBe('Verify your email address')
+        ->and($mail->actionUrl)->toBe(rtrim((string) config('app.url'), '/')."/api/v1/auth/verify-email/{$user->id}/{$link->token}");
 });

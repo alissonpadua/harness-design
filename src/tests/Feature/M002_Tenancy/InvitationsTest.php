@@ -6,7 +6,7 @@ use App\Enums\MemberStatus;
 use App\Enums\OrgRole;
 use App\Models\OrganizationInvite;
 use App\Models\OrganizationInviteLink;
-use App\Notifications\OrgInviteNotification;
+use App\Notifications\CatalogDelivery;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Support\Facades\Notification;
 use Tests\Support\Tenancy;
@@ -36,9 +36,13 @@ function captureInviteToken(?User $ignored = null): string
 {
     $token = '';
     Notification::assertSentOnDemand(
-        OrgInviteNotification::class,
+        CatalogDelivery::class,
         function ($n, $notifiable, $mail) use (&$token) {
-            $token = $n->invite->token();
+            if ($n->type !== 'org.invite_received') {
+                return false;
+            }
+
+            $token = basename((string) parse_url((string) $n->data['url'], PHP_URL_PATH));
 
             return true;
         },

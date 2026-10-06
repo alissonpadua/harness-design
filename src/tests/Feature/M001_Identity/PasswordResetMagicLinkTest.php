@@ -6,10 +6,11 @@ use App\Events\Auth\OtherLoginDetected;
 use App\Events\Auth\PasswordChanged;
 use App\Models\AuthLink;
 use App\Models\User;
-use App\Notifications\MagicLinkNotification;
-use App\Notifications\ResetPasswordNotification;
+use App\Notifications\CatalogDelivery;
+use App\Notifications\NotificationCatalog;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Auth\Notifications\ResetPassword as LaravelResetNotification;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
@@ -44,7 +45,7 @@ test('AC-001.10 forgot-password always 202 identical, mails only live accounts',
 
     $this->postJson('/api/v1/auth/forgot-password', ['email' => 'ada@example.com'])
         ->assertStatus(202)->assertExactJson($ghostBody);
-    Notification::assertSentTo($user, ResetPasswordNotification::class);
+    Notification::assertSentTo($user, CatalogDelivery::class, fn (CatalogDelivery $n) => $n->type === 'auth.password_reset' && isset($n->data['token']));
 
     $deleted = activeUser(['email' => 'gone@example.com']);
     $deleted->delete();
@@ -52,7 +53,7 @@ test('AC-001.10 forgot-password always 202 identical, mails only live accounts',
     Notification::assertNothingSentTo($deleted);
 
     // framework default notification must never leak through
-    Notification::assertSentTo($user, ResetPasswordNotification::class);
+    Notification::assertSentTo($user, CatalogDelivery::class, fn (CatalogDelivery $n) => $n->type === 'auth.password_reset' && isset($n->data['token']));
     Notification::assertNotSentTo($user, LaravelResetNotification::class);
 });
 
@@ -118,12 +119,13 @@ test('AC-001.10 reset enforces complexity on the new password', function () {
 
 test('AC-001.10 reset notification renders token and subject', function () {
     $user = activeUser();
-    $notification = new ResetPasswordNotification('abc123token');
+    $entry = app(NotificationCatalog::class)->get('auth.password_reset');
+    $delivery = new CatalogDelivery('auth.password_reset', ['token' => 'abc123token']);
 
-    expect($notification->via($user))->toBe(['mail']);
-    $mail = $notification->toMail($user);
-    expect($mail->subject)->toBe('Reset your password')
-        ->and(implode(' ', [...$mail->introLines, ...$mail->outroLines]))->toContain('abc123token');
+    expect($delivery->via($user))->toBe(['mail', 'database', 'broadcast']);
+    $mail = $entry->mailable(['token' => 'abc123token']);
+    expect($mail->envelope()->subject)->toBe('Reset your password')
+        ->and(implode(' ', $mail->buildViewData()['lines']))->toContain('abc123token');
 });
 
 /* ────────────────────────── AC-001.11 magic link ───────────────────────── */
@@ -136,8 +138,9 @@ test('AC-001.11 magic request is generic 202 and mails only live accounts with 1
     Notification::assertNothingSent();
 
     $this->postJson('/api/v1/auth/magic-link/request', ['email' => 'ada@example.com'])->assertStatus(202);
-    Notification::assertSentTo($user, MagicLinkNotification::class, function (MagicLinkNotification $n) {
-        return $n->link->expires_at->between(now()->addMinutes(14), now()->addMinutes(16));
+    Notification::assertSentTo($user, CatalogDelivery::class, function (CatalogDelivery $n) {
+        return $n->type === 'auth.magic_link'
+            && Carbon::parse($n->data['expires_at'])->between(now()->addMinutes(14), now()->addMinutes(16));
     });
 });
 
@@ -193,10 +196,11 @@ test('AC-001.11 consume validates device_type before touching links', function (
 test('AC-001.11 magic notification renders token', function () {
     $user = activeUser();
     $link = AuthLink::issue($user, 'magic_link');
-    $notification = new MagicLinkNotification($link);
+    $entry = app(NotificationCatalog::class)->get('auth.magic_link');
+    $delivery = new CatalogDelivery('auth.magic_link', ['token' => $link->token, 'minutes' => 15]);
 
-    expect($notification->via($user))->toBe(['mail']);
-    $mail = $notification->toMail($user);
-    expect($mail->subject)->toBe('Your sign-in link')
-        ->and(implode(' ', [...$mail->introLines, ...$mail->outroLines]))->toContain($link->token);
+    expect($delivery->via($user))->toBe(['mail', 'database', 'broadcast']);
+    $mail = $entry->mailable(['token' => (string) $link->token, 'minutes' => 15]);
+    expect($mail->envelope()->subject)->toBe('Your sign-in link')
+        ->and(implode(' ', $mail->buildViewData()['lines']))->toContain((string) $link->token);
 });

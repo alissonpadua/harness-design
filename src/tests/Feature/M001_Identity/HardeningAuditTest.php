@@ -2,13 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Models\AuthLink;
 use App\Models\User;
-use App\Notifications\EmailChangeNewAddressNotification;
-use App\Notifications\EmailChangeOldAddressNotification;
-use App\Notifications\EmailVerificationNotification;
-use App\Notifications\MagicLinkNotification;
-use App\Notifications\ResetPasswordNotification;
+use App\Notifications\CatalogDelivery;
+use App\Notifications\NotificationCatalog;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\RateLimiter;
@@ -82,24 +78,33 @@ test('named throttle buckets live in a single home (AppServiceProvider)', functi
 
 /* ─────────────── AC-001.25 notification catalog shape audit ─────────────── */
 
-test('all module-001 notification classes share the mail contract shape', function () {
+test('auth catalog types share the mail contract shape (004 migration of the 001 invariant)', function () {
     $user = User::factory()->create();
-    $link = AuthLink::issue($user, 'verify_email');
 
-    $notifications = [
-        new EmailVerificationNotification($link),
-        new ResetPasswordNotification('tok'),
-        new MagicLinkNotification($link),
-        new EmailChangeNewAddressNotification($link, 'new@example.com'),
-        new EmailChangeOldAddressNotification('new@example.com'),
+    $fixtures = [
+        'auth.email_verification' => ['url' => 'https://api.test/verify'],
+        'auth.password_reset' => ['token' => 'tok123'],
+        'auth.magic_link' => ['token' => 'tok456', 'minutes' => 10],
+        'auth.new_device_login' => ['ip' => '10.0.0.1', 'agent' => 'UA', 'time' => now()->toIso8601String()],
+        'auth.email_change' => ['variant' => 'to_old', 'from' => 'a@x.test', 'to' => 'b@x.test'],
     ];
 
-    foreach ($notifications as $notification) {
-        expect($notification->via($user))->toBe(['mail']);
-        $mail = $notification->toMail($user);
-        expect($mail->subject)->not->toBeEmpty($notification::class.' has no subject');
-        $body = implode(' ', [...$mail->introLines, ...$mail->outroLines]);
-        expect($body)->not->toBeEmpty($notification::class.' has no body');
+    $catalog = app(NotificationCatalog::class);
+
+    foreach ($fixtures as $type => $data) {
+        $entry = $catalog->get($type);
+        expect($entry->locked())->toBe($type !== 'auth.new_device_login', $type.' lock-state drifted from spec 004 Q2 table');
+
+        $delivery = new CatalogDelivery($type, $data);
+        $via = $delivery->via($user);
+        expect($via)->toContain('mail')
+            ->and($via)->toContain('database')
+            ->and($via)->toContain('broadcast');
+
+        $mail = $entry->mailable($data);
+        expect($mail->subject ?? $mail->envelope()->subject)->not->toBeEmpty($type.' has no subject');
+        $rendered = $mail->render();
+        expect($rendered)->not->toBeEmpty();
     }
 })->group('notifications');
 
