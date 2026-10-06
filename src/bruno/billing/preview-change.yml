@@ -1,0 +1,31 @@
+info:
+  name: Preview plan change (proration)
+  type: http
+  seq: 11
+
+http:
+  method: POST
+  url: "{baseUrl}/api/v1/orgs/:organization/billing/subscription/preview"
+  params:
+    - name: organization
+      value: "2"
+      type: path
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "plan_code": "business"
+      }
+  auth:
+    type: bearer
+    token: "{token}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+

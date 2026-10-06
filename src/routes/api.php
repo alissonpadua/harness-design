@@ -17,6 +17,9 @@ use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\SessionController;
 use App\Http\Controllers\Api\Auth\TwoFactorController;
 use App\Http\Controllers\Api\Auth\VerifyEmailController;
+use App\Http\Controllers\Api\Billing\BillingController;
+use App\Http\Controllers\Api\Billing\CheckoutReturnController;
+use App\Http\Controllers\Api\Billing\WebhookController;
 use App\Http\Controllers\Api\Org\InviteController;
 use App\Http\Controllers\Api\Org\InviteLinkController;
 use App\Http\Controllers\Api\Org\MemberController;
@@ -129,6 +132,21 @@ Route::prefix('v1/orgs')->middleware(['auth:sanctum', 'throttle:org-mutations'])
     Route::delete('{organization}/invite-links/{link}', [InviteLinkController::class, 'destroy'])->whereNumber('link')->name('links.destroy');
 
     Route::post('{organization}/leave', [MemberController::class, 'leave'])->name('leave');
+
+    Route::prefix('{organization}/billing')->name('billing.')->middleware('throttle:billing')->group(function (): void {
+        Route::post('checkout', [BillingController::class, 'checkout'])->name('checkout');
+        Route::get('subscription', [BillingController::class, 'subscription'])->name('subscription');
+        Route::post('subscription/preview', [BillingController::class, 'preview'])->name('subscription.preview');
+        Route::post('subscription/change', [BillingController::class, 'change'])->name('subscription.change');
+        Route::post('subscription/cancel', [BillingController::class, 'cancel'])->name('subscription.cancel');
+        Route::get('payment-methods', [BillingController::class, 'paymentMethods'])->name('payment_methods.index');
+        Route::post('payment-methods/setup', [BillingController::class, 'setup'])->name('payment_methods.setup');
+        Route::post('payment-methods', [BillingController::class, 'attach'])->name('payment_methods.attach');
+        Route::post('payment-methods/{paymentMethod}/default', [BillingController::class, 'setDefault'])->name('payment_methods.default');
+        Route::delete('payment-methods/{paymentMethod}', [BillingController::class, 'detach'])->name('payment_methods.detach');
+        Route::get('invoices', [BillingController::class, 'invoices'])->name('invoices.index');
+        Route::get('invoices/{invoice}/download', [BillingController::class, 'download'])->whereNumber('invoice')->name('invoices.download');
+    });
     Route::post('{organization}/transfer-ownership', [MemberController::class, 'transfer'])->name('transfer');
 });
 
@@ -139,6 +157,14 @@ Route::post('v1/invites/accept', [InviteController::class, 'accept'])
 Route::post('v1/invite-links/join', [InviteLinkController::class, 'join'])
     ->middleware(['auth:sanctum', 'throttle:org-mutations'])
     ->name('api.v1.invitelinks.join');
+
+Route::get('v1/billing/checkout/return', CheckoutReturnController::class)
+    ->middleware('throttle:billing-webhook')
+    ->name('api.v1.billing.checkout.return');
+
+Route::post('v1/billing/webhook/stripe', WebhookController::class)
+    ->middleware('throttle:billing-webhook')
+    ->name('api.v1.billing.webhook');
 
 Route::prefix('v1/profile')->middleware('auth:sanctum')->name('api.v1.profile.')->group(function (): void {
     Route::get('/', [ProfileController::class, 'show'])->name('show');

@@ -1,0 +1,22 @@
+info:
+  name: Invoices
+  type: http
+  seq: 11
+
+http:
+  method: GET
+  url: "{baseUrl}/api/v1/orgs/:organization/billing/invoices"
+  params:
+    - name: organization
+      value: "2"
+      type: path
+  auth:
+    type: bearer
+    token: "{token}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+

@@ -33,7 +33,8 @@ return [
         'invites.view' => 'List pending invites',
         'invites.revoke' => 'Revoke pending invites',
         'invite_links.manage' => 'Create / revoke invite links',
-        'billing.view' => 'View billing (consumed by spec 003)',
+        'billing.view' => 'View billing/portal (spec 003)',
+        'billing.manage' => 'Run checkout, change plans, manage payment methods (spec 003)',
     ],
 
 ];

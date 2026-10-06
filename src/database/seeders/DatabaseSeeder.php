@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(RolesSeeder::class);
+        $this->call(PlansSeeder::class);
 
         // Idempotent: harness/init.sh re-runs this every session (constitution #4).
         // Raw password on purpose — the `hashed` cast owns hashing (argon2id, spec 001).

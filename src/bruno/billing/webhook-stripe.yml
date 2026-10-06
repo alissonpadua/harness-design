@@ -1,0 +1,25 @@
+info:
+  name: Webhook (Stripe → this API)
+  type: http
+  seq: 12
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/billing/webhook/stripe"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Stripe-Signature
+      value: "t=...,v1=..."
+  body:
+    type: json
+    data: |-
+      {
+        "id": "evt_manual",
+        "type": "invoice.paid",
+        "data": { "object": { "id": "in_x", "customer": "cus_x", "subscription": "sub_x", "amount_due": 1900, "currency": "usd" } }
+      }
+  auth:
+    type: none
+
+docs: Real deployments point Stripe at this URL. Local dev without a tunnel: php artisan billing:ingest.

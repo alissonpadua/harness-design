@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Org;
 
+use App\Actions\Billing\EnsureOrgSubscription;
 use App\Enums\MemberStatus;
 use App\Enums\OrgRole;
 use App\Enums\OrgType;
@@ -16,6 +17,8 @@ use App\Models\User;
  */
 final readonly class CreatePersonalWorkspaceAction
 {
+    public function __construct(private EnsureOrgSubscription $ensureSubscription) {}
+
     public function handle(User $user): Organization
     {
         $existing = Organization::query()
@@ -48,6 +51,8 @@ final readonly class CreatePersonalWorkspaceAction
         ]);
 
         $user->forceFill(['current_organization_id' => $org->id])->save();
+
+        $this->ensureSubscription->handle($org);
 
         return $org;
     }

@@ -137,8 +137,8 @@ test('invite re-request replaces pending invite (old token dead); duplicate acti
     m004As($adaToken)->postJson('/api/v1/orgs/'.$org->id.'/invites', ['email' => 'dup@example.com', 'role' => 'member'])
         ->assertStatus(422)->assertJsonValidationErrors('email');
 
-    // member cap
-    config(['tenancy.limits.max_members' => 2]);
+    // member cap: attach a 2-seat plan
+    Tenancy::usePlan($org, 'two-seat', ['max_members_per_org' => 2]);
     Notification::fake();
     m004As($adaToken)->postJson('/api/v1/orgs/'.$org->id.'/invites', ['email' => 'late@example.com', 'role' => 'member'])
         ->assertStatus(402);
@@ -171,7 +171,7 @@ test('invite link: create/list/revoke; join grants role idempotently; expiry and
         ->assertForbidden()->assertJsonPath('message', 'This invitation link is no longer valid.');
 
     // member cap via link → 402
-    config(['tenancy.limits.max_members' => 2]);
+    Tenancy::usePlan($org, 'two-seat-link', ['max_members_per_org' => 2]);
     $link2 = m004As($adaToken)->postJson('/api/v1/orgs/'.$org->id.'/invite-links', ['role' => 'viewer'])->json('data.token');
     OrganizationInviteLink::query()->where('token_hash', hash('sha256', $link2))->update(['max_uses' => null, 'uses' => 0]);
     [$cap, $capToken] = Tenancy::user('cap@example.com');

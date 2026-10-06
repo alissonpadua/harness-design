@@ -1,0 +1,22 @@
+info:
+  name: Create setup intent
+  type: http
+  seq: 11
+
+http:
+  method: POST
+  url: "{baseUrl}/api/v1/orgs/:organization/billing/payment-methods/setup"
+  params:
+    - name: organization
+      value: "2"
+      type: path
+  auth:
+    type: bearer
+    token: "{token}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+

@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Auth\OrgTwoFactorPolicy;
-use App\Contracts\Org\ConfigOrgEntitlements;
+use App\Billing\FakeGateway;
+use App\Billing\StripeGateway;
+use App\Contracts\Billing\PaymentGateway;
 use App\Contracts\Org\OrgEntitlements;
+use App\Contracts\Org\PlanOrgEntitlements;
 use App\Contracts\TwoFactorPolicy;
 use App\Events\Auth\EmailChangeRequested;
 use App\Events\Auth\EmailVerificationRequested;
@@ -45,7 +48,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(CoseAlgorithmManager::class, fn () => (new CoseAlgorithmManager)
             ->add(new ES256, new ES384, new ES512, new RS256, new EdDSA));
         $this->app->bind(TwoFactorPolicy::class, OrgTwoFactorPolicy::class);
-        $this->app->bind(OrgEntitlements::class, ConfigOrgEntitlements::class);
+        $this->app->bind(OrgEntitlements::class, PlanOrgEntitlements::class);
+
+        $this->app->singleton(PaymentGateway::class, fn () => match ((string) config('billing.driver')) {
+            'fake' => new FakeGateway,
+            default => new StripeGateway,
+        });
     }
 
     /**
@@ -63,6 +71,8 @@ class AppServiceProvider extends ServiceProvider
         // Named buckets — full matrix + reflection test arrives in T10/006.
         RateLimiter::for('admin-generic', fn (Request $request) => Limit::perMinute(60)->by($request->user() ? (string) $request->user()->id : (string) $request->ip()));
         RateLimiter::for('org-mutations', fn (Request $request) => Limit::perMinute(60)->by($request->user() ? (string) $request->user()->id : (string) $request->ip()));
+        RateLimiter::for('billing', fn (Request $request) => Limit::perMinute(30)->by((string) ($request->user() ? $request->user()->id : $request->ip())));
+        RateLimiter::for('billing-webhook', fn (Request $request) => Limit::perMinute(60)->by((string) $request->ip()));
         RateLimiter::for('auth-register', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
         RateLimiter::for('auth-resend', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
         RateLimiter::for('auth-verify', fn (Request $request) => Limit::perMinute(20)->by($request->ip()));

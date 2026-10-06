@@ -75,8 +75,7 @@ test('team creation: 201, owner membership, org.created event, slug set', functi
     expect(Organization::firstWhere('name', 'Acme Rockets')->slug)->toBe('acme-rockets');
 });
 
-test('team entitlement ceiling → 402 Subscription required', function () {
-    config(['tenancy.limits.max_teams' => 1]);
+test('team entitlement ceiling → 402 Subscription required (free plan = 1 team)', function () {
     [$ada, $token] = Tenancy::user();
     Tenancy::personalWorkspace($ada);
 

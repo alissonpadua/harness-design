@@ -86,3 +86,23 @@ test('readonly rule scanner works (positive + negative fixtures)', function () {
     expect($isTight($bad))->toBeFalse();
     expect($isTight($good))->toBeTrue();
 });
+
+/* ───────────────────── model declaration style (003 follow-up) ───────────── */
+
+it('declares model attributes only via properties + casts() method', function () {
+    $banned = [
+        'protected $casts =' => 'use the casts(): array method (L11+ style)',
+        '#\[Fillable' => 'use protected $fillable',
+        '#\[Hidden' => 'use protected $hidden',
+        'function get[A-Za-z]*Attribute\(' => 'use Attribute::make inside casts()',
+        'function set[A-Za-z]*Attribute\(' => 'use Attribute::make inside casts()',
+    ];
+
+    foreach (glob(app_path('Models/*.php')) ?: [] as $file) {
+        $src = (string) file_get_contents($file);
+
+        foreach ($banned as $pattern => $hint) {
+            expect($src)->not->toMatch('/'.$pattern.'/', basename($file).': '.$hint);
+        }
+    }
+});

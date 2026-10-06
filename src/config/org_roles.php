@@ -37,6 +37,7 @@ return [
         'invites.revoke',
         'invite_links.manage',
         'billing.view',
+        'billing.manage',
     ],
 
     'owner' => [

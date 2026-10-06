@@ -114,6 +114,17 @@ class Organization extends Model
         return $this->type === OrgType::Personal;
     }
 
+    /** @return HasMany<BillingSubscription, $this> */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(BillingSubscription::class);
+    }
+
+    public function subscription(): ?BillingSubscription
+    {
+        return $this->subscriptions()->latest('id')->first();
+    }
+
     public function membershipFor(User $user): ?OrganizationMembership
     {
         return $this->memberships()->where('user_id', $user->id)->first();

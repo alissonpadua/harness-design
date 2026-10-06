@@ -1,0 +1,34 @@
+info:
+  name: Start checkout (hosted)
+  type: http
+  seq: 11
+
+http:
+  method: POST
+  url: "{baseUrl}/api/v1/orgs/:organization/billing/checkout"
+  params:
+    - name: organization
+      value: "2"
+      type: path
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "plan_code": "pro",
+        "interval": "monthly",
+        "currency": "USD"
+      }
+  auth:
+    type: bearer
+    token: "{token}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+
+docs: Open the returned data.url in a browser to complete payment with 4242 4242 4242 4242.

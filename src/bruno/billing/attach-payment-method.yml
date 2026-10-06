@@ -1,0 +1,31 @@
+info:
+  name: Attach payment method
+  type: http
+  seq: 11
+
+http:
+  method: POST
+  url: "{baseUrl}/api/v1/orgs/:organization/billing/payment-methods"
+  params:
+    - name: organization
+      value: "2"
+      type: path
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "payment_method_id": "pm_card_visa"
+      }
+  auth:
+    type: bearer
+    token: "{token}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+

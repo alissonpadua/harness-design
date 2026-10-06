@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Org;
 
+use App\Actions\Billing\EnsureOrgSubscription;
 use App\Contracts\Org\OrgEntitlements;
 use App\Enums\MemberStatus;
 use App\Enums\OrgRole;
@@ -15,7 +16,10 @@ use App\Models\User;
 
 final readonly class CreateOrganizationAction
 {
-    public function __construct(private OrgEntitlements $entitlements) {}
+    public function __construct(
+        private OrgEntitlements $entitlements,
+        private EnsureOrgSubscription $ensureSubscription,
+    ) {}
 
     public function handle(User $creator, string $name): Organization
     {
@@ -39,6 +43,8 @@ final readonly class CreateOrganizationAction
             'role' => OrgRole::Owner->value,
             'status' => MemberStatus::Active->value,
         ]);
+
+        $this->ensureSubscription->handle($org);
 
         event(new OrgCreated($org));
 

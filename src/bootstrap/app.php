@@ -7,6 +7,7 @@ use App\Http\Middleware\ApiEnvelope;
 use App\Http\Middleware\EnsureDocsVisible;
 use App\Http\Middleware\RequestId;
 use App\Http\Middleware\TrackTokenUsage;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -22,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withSchedule(function (Schedule $schedule): void {
+        $schedule->command('billing:dunning')->hourly()->withoutOverlapping();
+    })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append([
             RequestId::class,
