@@ -57,14 +57,16 @@
       "id": "004",
       "name": "Notifications",
       "spec": "specs/active/004-notifications/spec.md",
-      "passes": false,
+      "passes": true,
       "steps": [
         "Catalog class per type via make:notification; preferences auto-expose new types",
         "Email queued + Blade markdown layout renders in mailpit",
         "Broadcast delivered to Reverb private user.{id} channel AND persisted for offline list fetch",
         "User can toggle email per type; locked security types cannot be disabled",
         "failed_notifications logged; retry command redelivers"
-      ]
+      ],
+      "verified_at": "2026-10-06",
+      "verification": "specs/active/004-notifications/verification.md"
     },
     {
       "id": "005",

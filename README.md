@@ -191,8 +191,8 @@ Hooks are the only *automatic* layer, but they are runtime configuration — the
 | 001 | Identity & Access (auth, 2FA, passkeys, OAuth, magic link, sessions, role plane) | ✅ shipped |
 | 002 | Teams, Orgs & Tenancy (orgs, memberships, invites, tenant scope) | ✅ shipped |
 | 003 | Billing & Monetization (DB plans, swappable gateway, own portal) | ✅ shipped |
-| 004 | Notifications (catalog, prefs, Echo + persisted) | ⏳ next |
-| 005 | Admin & Ops (impersonation, suspend, audit, Horizon prod) | ⏳ |
+| 004 | Notifications (catalog, prefs, Echo + persisted) | ✅ shipped |
+| 005 | Admin & Ops (impersonation, suspend, audit, Horizon prod) | ⏳ next |
 | 006 | Security & API (integration tokens, uploads hygiene, headers) | ⏳ |
 | 007 | Onboarding Events | ⏳ |
 | 008 | Settings & Personalization | ⏳ |
