@@ -190,14 +190,14 @@ Hooks are the only *automatic* layer, but they are runtime configuration — the
 |---|---|---|
 | 001 | Identity & Access (auth, 2FA, passkeys, OAuth, magic link, sessions, role plane) | ✅ shipped |
 | 002 | Teams, Orgs & Tenancy (orgs, memberships, invites, tenant scope) | ✅ shipped |
-| 003 | Billing & Monetization (DB plans, swappable gateway, own portal) | ⏳ next |
-| 004 | Notifications (catalog, prefs, Echo + persisted) | ⏳ |
+| 003 | Billing & Monetization (DB plans, swappable gateway, own portal) | ✅ shipped |
+| 004 | Notifications (catalog, prefs, Echo + persisted) | ⏳ next |
 | 005 | Admin & Ops (impersonation, suspend, audit, Horizon prod) | ⏳ |
 | 006 | Security & API (integration tokens, uploads hygiene, headers) | ⏳ |
 | 007 | Onboarding Events | ⏳ |
 | 008 | Settings & Personalization | ⏳ |
 | 009 | Background Work & Outbound Webhooks | ⏳ |
-| 010 | Dev Platform & CI | 🟡 live (final step flips at 003 convergence) |
+| 010 | Dev Platform & CI | ✅ shipped (suite 44s < 90s gate, met at 003 convergence) |
 
 ## Notes
 

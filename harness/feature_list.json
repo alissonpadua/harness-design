@@ -7,7 +7,7 @@
       "spec": "specs/active/001-identity-access/spec.md",
       "passes": true,
       "steps": [
-        "Register with email+password → verification email queued (mailpit) → verify via signed payload",
+        "Register with email+password \u2192 verification email queued (mailpit) \u2192 verify via signed payload",
         "Login issues exactly one active token per device_type; re-login same type revokes old token, other types survive; other_login.detected event fired",
         "Google OAuth login creates/links account; non-Google/Meta providers rejected",
         "Passkey registration + assertion logs in without password",
@@ -17,7 +17,7 @@
         "spatie global roles gate /admin/v1; permission names use resource.action"
       ],
       "verified_at": "2026-10-02",
-      "verification": "specs/active/001-identity-access/verification.md (S1–S8 line-by-line)"
+      "verification": "specs/active/001-identity-access/verification.md (S1\u2013S8 line-by-line)"
     },
     {
       "id": "002",
@@ -27,29 +27,31 @@
       "steps": [
         "Signup auto-creates undeletable personal workspace; current_organization_id set and switchable via endpoint",
         "Org-scoped models are isolated: user A cannot read/modify org B rows even knowing the ID (404)",
-        "Plan entitlement max_organizations enforced → 402 SubscriptionRequired when exceeded",
+        "Plan entitlement max_organizations enforced \u2192 402 SubscriptionRequired when exceeded",
         "Email invite (pending, 7d expiry) + invite link (expiring token) join flows grant pivot role",
         "Builtin org roles owner/admin/member/viewer restrict actions per permission map",
         "Transfer ownership requires 2FA re-check; owner cannot leave before transfer",
         "Org soft-delete confirm-text; restore admin-only"
       ],
       "verified_at": "2026-10-03",
-      "verification": "specs/active/002-teams-tenancy/verification.md (S1–S7 line-by-line)"
+      "verification": "specs/active/002-teams-tenancy/verification.md (S1\u2013S7 line-by-line)"
     },
     {
       "id": "003",
       "name": "Billing & Monetization",
       "spec": "specs/active/003-billing/spec.md",
-      "passes": false,
+      "passes": true,
       "steps": [
         "Plans/plan_prices/entitlements seeded + admin CRUD without deploy",
         "Checkout via StripeGateway creates subscription (card required for trial, not for free)",
         "Own portal: payment methods attach/default/remove; invoice list + signed download URL",
         "Upgrade prorates via gateway preview; downgrade pending flips at period end",
-        "Webhook → local mirror synced idempotently (replay-safe via webhook_events)",
-        "past_due → grace → downgrade-to-free job transitions observable",
+        "Webhook \u2192 local mirror synced idempotently (replay-safe via webhook_events)",
+        "past_due \u2192 grace \u2192 downgrade-to-free job transitions observable",
         "Entitlement check org->can/limit returns 402 envelope; FakeGateway passes whole suite with zero Stripe calls"
-      ]
+      ],
+      "verified_at": "2026-10-06",
+      "verification": "specs/active/003-billing/verification.md"
     },
     {
       "id": "004",
@@ -87,11 +89,11 @@
       "steps": [
         "Security headers + CORS allowlist + X-Request-Id present on every response",
         "Throttle buckets: login/otp/password-reset return 429 + Retry-After; plan api_rate_limit honored",
-        "Integration tokens with abilities enforced (missing ability → 403), shown once, revoke works",
+        "Integration tokens with abilities enforced (missing ability \u2192 403), shown once, revoke works",
         "2FA-fresh-session required to create token",
-        "Logo upload: finfo+re-encode, public read; all other uploads rejected (module 9 deleted) — form field validation test suite green",
+        "Logo upload: finfo+re-encode, public read; all other uploads rejected (module 9 deleted) \u2014 form field validation test suite green",
         "CI: no mass assignment anywhere; FormRequest on 100% write routes (grep test)",
-        "Registrations kill-switch (settings) → 403 register when closed"
+        "Registrations kill-switch (settings) \u2192 403 register when closed"
       ]
     },
     {
@@ -131,7 +133,7 @@
       "id": "010",
       "name": "Dev Platform & CI",
       "spec": "specs/active/010-dev-platform-ci/spec.md",
-      "passes": false,
+      "passes": true,
       "steps": [
         "harness/init.sh boots cold (fresh clone, no .env) to ready stack idempotently",
         "harness/scripts/check.sh == CI pipeline (pint, phpstan L8, composer audit, pest incl. arch, openapi fresh)",
@@ -139,7 +141,9 @@
         "Impl commit without test changes in task scope fails TDD diff-check",
         "Scramble /docs serves full OpenAPI for every route (count assertion test)",
         "golden-org fixture + FakeGateway make module suites run in <90s in CI"
-      ]
+      ],
+      "verified_at": "2026-10-06",
+      "verification": "specs/active/010-dev-platform-ci/verification.md"
     }
   ]
 }
