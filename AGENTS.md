@@ -22,6 +22,10 @@ The Laravel app lives in `src/`. This root is the harness.
 | API docs | http://localhost:8080/docs (dev) |
 | Mailpit UI | http://localhost:8025 |
 
+## Gate discipline (learned 2026-10-06, human-enforced)
+
+6. **Never advance on a red gate.** `harness/scripts/check.sh` must print `✔ green` before: declaring work done, starting the next task/module, or proposing commits. "Tests passed earlier" is not evidence — re-run. Small docblock/generic fixes can snowball into 2 hidden Larastan errors.
+
 ## Architecture (enforced by Pest arch tests in src/tests/Architecture)
 
 Controller (~5 lines) → FormRequest → `App\Data` DTO → `App\Actions\*Action` → Event → Listener.

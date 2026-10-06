@@ -15,7 +15,7 @@ use InvalidArgumentException;
  * @property string $name
  * @property int $trial_days
  * @property bool $active
- * @property PlanEntitlementsData $entitlements
+ * @property PlanEntitlementsData|array<string, mixed> $entitlements
  */
 class Plan extends Model
 {
@@ -34,6 +34,8 @@ class Plan extends Model
 
     /**
      * Strict typed JSON accessor: only the whitelisted entitlement shape round-trips.
+     *
+     * @return Attribute<PlanEntitlementsData, PlanEntitlementsData|array<string, mixed>>
      */
     protected function entitlements(): Attribute
     {
