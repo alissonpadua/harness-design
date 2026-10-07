@@ -17,7 +17,7 @@ final class UpdateMemberRequest extends OrgScopedRequest
     public function rules(): array
     {
         return [
-            'role' => ['required', Rule::enum(OrgRole::class)],
+            'role' => ['required', Rule::enum(OrgRole::class)->except(OrgRole::Owner)],
         ];
     }
 }

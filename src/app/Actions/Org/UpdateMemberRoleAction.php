@@ -10,6 +10,7 @@ use App\Exceptions\LastOwnerException;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 
 final readonly class UpdateMemberRoleAction
 {
@@ -21,10 +22,17 @@ final readonly class UpdateMemberRoleAction
             throw (new ModelNotFoundException)->setModel(User::class, $userId);
         }
 
-        if ($membership->role === OrgRole::Owner && $role !== OrgRole::Owner) {
+        // Owner rows are immutable through this surface — transfer-ownership is the only owner path (audit T0).
+        if ($role === OrgRole::Owner) {
+            throw ValidationException::withMessages(['role' => ['Ownership changes require the transfer-ownership flow.']]);
+        }
+
+        if ($membership->role === OrgRole::Owner) {
             if ($org->memberships()->where('role', OrgRole::Owner->value)->count() <= 1) {
                 throw new LastOwnerException;
             }
+
+            throw ValidationException::withMessages(['role' => ['Ownership changes require the transfer-ownership flow.']]);
         }
 
         $membership->forceFill(['role' => $role->value])->save();

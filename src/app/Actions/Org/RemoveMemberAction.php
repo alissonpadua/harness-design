@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Actions\Org;
 
-use App\Enums\MemberStatus;
 use App\Enums\OrgRole;
 use App\Enums\OrgType;
 use App\Events\Org\MemberRemoved;
@@ -20,12 +19,9 @@ final readonly class RemoveMemberAction
         $membership = $org->memberships()->where('user_id', $userId)->first()
             ?? throw (new ModelNotFoundException)->setModel(User::class, $userId);
 
-        if ($membership->status === MemberStatus::Active && $membership->role === OrgRole::Owner) {
-            $owners = $org->memberships()->where('role', OrgRole::Owner->value)->count();
-
-            if ($owners <= 1) {
-                throw ValidationException::withMessages(['user' => ['The organization must keep an owner.']]);
-            }
+        // Any owner membership survives this endpoint regardless of status (audit T0: suspend->evict chain).
+        if ($membership->role === OrgRole::Owner) {
+            throw ValidationException::withMessages(['user' => ['The organization must keep an owner.']]);
         }
 
         $membership->delete();
