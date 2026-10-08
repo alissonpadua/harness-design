@@ -8,8 +8,10 @@ COPY docker/php/certs/ /usr/local/share/ca-certificates/
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git unzip libpq-dev libicu-dev libzip-dev libonig-dev ca-certificates \
+        libjpeg62-turbo-dev libpng-dev libwebp-dev \
     && update-ca-certificates \
-    && docker-php-ext-install pdo_pgsql bcmath intl zip pcntl opcache mbstring \
+    && docker-php-ext-configure gd --with-jpeg --with-webp \
+    && docker-php-ext-install pdo_pgsql bcmath intl zip pcntl opcache mbstring gd \
     && pecl install /tmp/deps/redis-6.2.0.tgz /tmp/deps/xdebug-3.5.0.tgz \
     && docker-php-ext-enable redis xdebug \
     && rm -rf /tmp/deps \
