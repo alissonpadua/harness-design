@@ -1,0 +1,11 @@
+info:
+  name: Org logo: public read (no auth)
+  type: http
+  seq: 5
+
+http:
+  method: get
+  url: "{{baseUrl}}/api/v1/public/orgs/1/logo"
+docs: |-
+  Only public-read surface in the product (spec 006). Streams (local) or 302
+  to a 5-minute signed URL (s3). 404 when unset.

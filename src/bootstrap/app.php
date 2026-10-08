@@ -9,6 +9,7 @@ use App\Http\Middleware\EnsureDocsVisible;
 use App\Http\Middleware\EnsureNotImpersonating;
 use App\Http\Middleware\EnsureNotSuspended;
 use App\Http\Middleware\RequestId;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TrackTokenUsage;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
@@ -42,6 +43,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append([
             RequestId::class,
+            SecurityHeaders::class,
             ApiEnvelope::class,
         ]);
 

@@ -10,6 +10,7 @@ use App\Data\Plan\PlanEntitlementsData;
 use App\Models\Organization;
 use App\Models\OrganizationEntitlementOverride;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 
 final readonly class SetOrgEntitlementOverrideAction
@@ -54,6 +55,8 @@ final readonly class SetOrgEntitlementOverrideAction
             ['organization_id' => $org->id],
             ['overrides' => $data->toArray()],
         );
+
+        Cache::forget('plan-rl:'.$org->id); // plan-api throttle ceiling (spec 006)
 
         $this->audit->log('org_entitlement_override', $actor, $org, ['from' => $before, 'to' => $data->toArray()]);
 

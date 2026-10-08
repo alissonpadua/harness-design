@@ -1,0 +1,20 @@
+info:
+  name: Org logo: upload (sole upload surface)
+  type: http
+  seq: 4
+
+http:
+  method: put
+  url: "{{baseUrl}}/api/v1/orgs/1/logo"  body:
+    type: multipart-form
+    data:
+      - name: logo
+        type: file
+        src: ./fixtures/logo.png
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  multipart field `logo`: png/jpeg/webp <=2MiB, finfo-sniffed + GD re-encoded
+  to webp (<=1024px) on the PRIVATE disk. Requires org.update.

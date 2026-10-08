@@ -7,7 +7,9 @@ namespace App\Actions\Auth;
 use App\Data\Auth\RegisterUserData;
 use App\Events\Auth\EmailVerificationRequested;
 use App\Events\Auth\UserRegistered;
+use App\Exceptions\RegistrationsClosedException;
 use App\Models\User;
+use App\Settings\RegistrationsSettings;
 use Illuminate\Support\Facades\Hash;
 
 final readonly class RegisterUserAction
@@ -16,6 +18,10 @@ final readonly class RegisterUserAction
 
     public function handle(RegisterUserData $data): void
     {
+        if (! app(RegistrationsSettings::class)->open) {
+            throw new RegistrationsClosedException;
+        }
+
         $existing = User::query()->where('email', $data->email)->first();
 
         // Cost-parity with the create path: hashing runs either way (anti-enumeration).

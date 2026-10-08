@@ -36,6 +36,7 @@ return [
         'invites.view',
         'invites.revoke',
         'invite_links.manage',
+        'tokens.manage',
         'billing.view',
         'billing.manage',
         'audit.view',

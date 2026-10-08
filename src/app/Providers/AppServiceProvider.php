@@ -32,6 +32,8 @@ use App\Listeners\Org\CreatePersonalWorkspaceOnRegistration;
 use App\Listeners\Org\NotifyMemberJoined;
 use App\Listeners\Org\NotifyOwnershipTransferred;
 use App\Listeners\Org\SendOrgInviteMail;
+use App\Models\Organization;
+use App\Models\PersonalAccessToken;
 use Cose\Algorithm\Manager as CoseAlgorithmManager;
 use Cose\Algorithm\Signature\ECDSA\ES256;
 use Cose\Algorithm\Signature\ECDSA\ES384;
@@ -41,9 +43,11 @@ use Cose\Algorithm\Signature\RSA\RS256;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Events\NotificationSent;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Sanctum\Sanctum;
 use PragmaRX\Google2FA\Google2FA;
 
 class AppServiceProvider extends ServiceProvider
@@ -87,7 +91,12 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(SubscriptionPlanChanged::class, [NotifyBillingEvents::class, 'onPlanChanged']);
         Event::listen(NotificationSent::class, [PruneInbox::class, 'handle']);
 
+        // Spec 006: PAT subclass carries organization_id + kind (integration tokens).
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
         // Named buckets — full matrix + reflection test arrives in T10/006.
+        RateLimiter::for('tokens-mutations', fn (Request $request) => Limit::perMinute(10)->by((string) ($request->user() ? $request->user()->id : $request->ip())));
+
         RateLimiter::for('admin-generic', fn (Request $request) => Limit::perMinute(60)->by($request->user() ? (string) $request->user()->id : (string) $request->ip()));
         RateLimiter::for('org-mutations', fn (Request $request) => Limit::perMinute(60)->by($request->user() ? (string) $request->user()->id : (string) $request->ip()));
         RateLimiter::for('billing', fn (Request $request) => Limit::perMinute(30)->by((string) ($request->user() ? $request->user()->id : $request->ip())));
@@ -102,6 +111,47 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('auth-magic-consume', fn (Request $request) => Limit::perMinute(10)->by((string) $request->ip()));
         RateLimiter::for('auth-oauth', fn (Request $request) => Limit::perMinute(10)->by((string) $request->ip()));
         RateLimiter::for('auth-passkey', fn (Request $request) => Limit::perMinute(10)->by((string) $request->ip()));
+        // Plan-gated API budget (spec 006 Q5=A): keyed on the ACTING organization —
+        // integration token's org, else the route's {organization} (id or slug), else
+        // the user's current org, else their first membership (personal workspace).
+        // Override/plan writes forget the cached ceiling (same key).
+        RateLimiter::for('plan-api', function (Request $request) {
+            $user = $request->user();
+
+            if ($user === null) {
+                return Limit::perMinute(60)->by('ip:'.$request->ip());
+            }
+
+            $orgId = $user->currentAccessToken()->getAttribute('organization_id');
+
+            if ($orgId === null) {
+                $param = $request->route('organization');
+
+                if (is_string($param) && $param !== '') {
+                    $orgId = Organization::query()->identifier($param)->value('id');
+                }
+            }
+
+            $orgId ??= $user->current_organization_id;
+            $orgId ??= $user->organizations()->orderBy('organizations.id')->value('organizations.id');
+
+            if ($orgId === null) {
+                return Limit::perMinute(60)->by('user:'.$user->id);
+            }
+
+            // (int) cast is mandatory: predis returns cached scalars as strings (005 lesson).
+            $max = (int) Cache::remember('plan-rl:'.$orgId, 60, function () use ($orgId) {
+                /** @var Organization|null $org */
+                $org = Organization::query()->whereKey($orgId)->first();
+
+                return $org === null
+                    ? 60
+                    : app(PlanOrgEntitlements::class)->effective($org)->api_rate_limit_per_min;
+            });
+
+            return Limit::perMinute(max(1, $max))->by('org:'.$orgId);
+        });
+
         RateLimiter::for('auth-2fa', fn (Request $request) => Limit::perMinute(10)->by($request->user() ? (string) $request->user()->id : (string) $request->ip()));
     }
 }

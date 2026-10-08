@@ -77,6 +77,11 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    public function hasSecondFactor(): bool
+    {
+        return $this->two_factor_confirmed_at !== null || $this->passkeys()->exists();
+    }
+
     public function isImpersonating(mixed $token = null): bool
     {
         $token ??= $this->currentAccessToken();

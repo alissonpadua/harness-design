@@ -13,6 +13,7 @@ use App\Enums\SubscriptionStatus;
 use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -60,6 +61,7 @@ final readonly class ChangeOrgPlanAction
             'admin_locked' => true,
         ])->save();
 
+        Cache::forget('plan-rl:'.$org->id); // plan-api throttle ceiling (spec 006)
         $this->evaluate->handle($sub->refresh());
 
         $this->audit->log('org_plan_change', $actor, $org, [

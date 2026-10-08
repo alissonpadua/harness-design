@@ -21,7 +21,7 @@ test('organizations tables + columns exist', function () {
         ->and(Schema::hasTable('organization_invites'))->toBeTrue()
         ->and(Schema::hasTable('organization_invite_links'))->toBeTrue()
         ->and(array_values(array_diff([
-            'name', 'slug', 'type', 'owner_id', 'logo_url', 'domain',
+            'name', 'slug', 'type', 'owner_id', 'domain',
             'default_member_role', 'require_2fa', 'invite_only', 'deleted_at',
         ], Schema::getColumnListing('organizations'))))->toBe([])
         ->and(array_values(array_diff(

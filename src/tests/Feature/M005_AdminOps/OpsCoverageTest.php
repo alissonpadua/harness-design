@@ -30,15 +30,14 @@ use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Laravel\Socialite\Facades\Socialite;
-use Laravel\Socialite\Two\AbstractProvider;
-use Laravel\Socialite\Two\User as SocialiteUser;
+use Laravel\Socialite\Contracts\Factory;
 use LaravelWebauthn\Models\WebauthnKey;
-use Mockery;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use Spatie\Health\Enums\Status;
 use Symfony\Component\HttpFoundation\InputBag;
 use Tests\Feature\M003_Billing\BillingHelp;
+use Tests\Support\FakeSocialite;
+use Tests\Support\FakeSocialiteUser;
 use Tests\Support\Tenancy;
 
 uses(RefreshDatabase::class);
@@ -104,14 +103,10 @@ test('suspended users blocked at passkey, magic-link and oauth lanes', function 
     OauthAccount::create(['user_id' => $third->id, 'provider' => 'google', 'provider_id' => 'g-cov', 'provider_email' => 'oa@cov.test']);
     covSuspend($rt, $third->id, 'oauth hold');
 
-    $social = Mockery::mock(SocialiteUser::class);
-    $social->shouldReceive('getId')->andReturn('g-cov');
-    $social->shouldReceive('getEmail')->andReturn('oa@cov.test');
-    $social->shouldReceive('getName')->andReturn('OA');
-    $social->shouldReceive('getRaw')->andReturn(['email' => 'oa@cov.test', 'email_verified' => true]);
-    $driver = Mockery::mock(AbstractProvider::class);
-    $driver->shouldReceive('stateless')->andReturnSelf()->shouldReceive('user')->andReturn($social);
-    Socialite::shouldReceive('driver')->with('google')->andReturn($driver);
+    $this->app->instance(
+        Factory::class,
+        new FakeSocialite(new FakeSocialiteUser('g-cov', 'oa@cov.test'))
+    );
 
     $this->postJson('/api/v1/auth/oauth/google/exchange', ['code' => 'code-123', 'device_type' => 'web'])
         ->assertStatus(403)->assertJsonPath('message', 'Account suspended.');

@@ -12,9 +12,11 @@ use App\Events\Auth\UserRegistered;
 use App\Exceptions\AccountSuspendedException;
 use App\Exceptions\EmailNotVerifiedException;
 use App\Exceptions\LoginFailedException;
+use App\Exceptions\RegistrationsClosedException;
 use App\Exceptions\TwoFactorMandatoryException;
 use App\Models\OauthAccount;
 use App\Models\User;
+use App\Settings\RegistrationsSettings;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\AbstractProvider;
@@ -110,6 +112,10 @@ final readonly class CompleteOAuthAction
             // email claimed by an account we cannot safely link (provider unverified or
             // local email unverified) → same generic response, no enumeration, no duplicate.
             throw new EmailNotVerifiedException;
+        }
+
+        if (! app(RegistrationsSettings::class)->open) {
+            throw new RegistrationsClosedException; // kill-switch blocks NEW identities only (006.10)
         }
 
         $user = User::create([

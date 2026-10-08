@@ -1,0 +1,13 @@
+info:
+  name: Integration tokens: revoke
+  type: http
+  seq: 3
+
+http:
+  method: delete
+  url: "{{baseUrl}}/api/v1/orgs/1/tokens/1"  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Revokes immediately (bearer then 401) + integration_token_revoked audit row.

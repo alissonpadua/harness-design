@@ -13,6 +13,9 @@ return [
     | Security event names (explicit log via AuditSecurityEvent).
     */
     'events' => [
+        'settings_change',
+        'integration_token_created',
+        'integration_token_revoked',
         'admin_login', 'user_suspend', 'user_unsuspend', 'user_restore', 'user_force_delete',
         'org_restore', 'org_plan_change', 'org_entitlement_override',
         'impersonation_start', 'impersonation_stop', 'impersonated_request',

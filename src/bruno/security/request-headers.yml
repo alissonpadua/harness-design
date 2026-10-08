@@ -1,0 +1,15 @@
+info:
+  name: Response security headers
+  type: http
+  seq: 8
+
+http:
+  method: get
+  url: "{{baseUrl}}/api/v1/ping"  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Every response: X-Content-Type-Options nosniff, X-Frame-Options DENY,
+  Referrer-Policy no-referrer, CSP default-src 'none' (docs/* exempt),
+  X-Request-Id echoed/generated. CORS allowlist via FRONTEND_ORIGINS env.

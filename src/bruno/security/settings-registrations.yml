@@ -1,0 +1,24 @@
+info:
+  name: Registrations kill-switch: toggle
+  type: http
+  seq: 7
+
+http:
+  method: put
+  url: "{{baseUrl}}/admin/v1/settings/registrations"  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "open": false
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Super-admin only. Closed => POST /auth/register and OAUTH NEW-USER
+  creation answer 403 'Registrations are closed.'; existing users unaffected.
+  Audited settings_change. GET same path reads current value.

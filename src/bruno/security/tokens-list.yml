@@ -1,0 +1,14 @@
+info:
+  name: Integration tokens: list
+  type: http
+  seq: 1
+
+http:
+  method: get
+  url: "{{baseUrl}}/api/v1/orgs/1/tokens"  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 006 S3 — org integration tokens (metadata only; plaintext never listable).
+  Requires tokens.manage (owner/admin). Creation additionally needs 2FA on the account.

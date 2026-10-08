@@ -8,6 +8,7 @@ use App\Enums\OrgRole;
 use App\Enums\OrgType;
 use Database\Factories\OrganizationFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,7 +25,9 @@ use Spatie\Activitylog\Support\LogOptions;
  * @property string $slug
  * @property OrgType $type
  * @property int $owner_id
- * @property string|null $logo_url
+ * @property string|null $logo_path
+ * @property string|null $logo_hash
+ * @property-read string|null $logo_url
  * @property string|null $domain
  * @property OrgRole $default_member_role
  * @property bool $require_2fa
@@ -47,7 +50,7 @@ class Organization extends Model
 
     use SoftDeletes;
 
-    protected $fillable = ['name', 'slug', 'type', 'owner_id', 'logo_url', 'domain', 'default_member_role', 'require_2fa', 'invite_only'];
+    protected $fillable = ['name', 'slug', 'type', 'owner_id', 'domain', 'default_member_role', 'require_2fa', 'invite_only'];
 
     protected function casts(): array
     {
@@ -135,6 +138,21 @@ class Organization extends Model
     public function subscription(): ?BillingSubscription
     {
         return $this->subscriptions()->latest('id')->first();
+    }
+
+    /** Spec 006: logo_url is derived (upload + public route), never free text. */
+    /** @return Attribute<string|null, never> */
+    protected function logoUrl(): Attribute
+    {
+        return Attribute::get(fn (): ?string => is_string($this->logo_path) && $this->logo_path !== ''
+            ? route('api.v1.public.logo', ['identifier' => $this->slug])
+            : null);
+    }
+
+    /** @return HasMany<PersonalAccessToken, $this> */
+    public function integrationTokens(): HasMany
+    {
+        return $this->hasMany(PersonalAccessToken::class, 'organization_id')->where('kind', 'integration');
     }
 
     public function membershipFor(User $user): ?OrganizationMembership

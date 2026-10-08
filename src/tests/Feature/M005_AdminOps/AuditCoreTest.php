@@ -34,7 +34,7 @@ test('T1 model audits: create + dirty whitelisted updates land; off-list attrs n
     $org = Tenancy::org($ada, 'Audited');
 
     $org->forceFill(['name' => 'Renamed', 'require_2fa' => true])->save();
-    $org->forceFill(['logo_url' => 'http://x/y.png'])->save(); // off-whitelist -> no row
+    $org->forceFill(['logo_hash' => str_repeat('a', 64)])->save(); // off-whitelist -> no row
 
     $rows = DB::table('activity_log')
         ->where('subject_type', Organization::class)
@@ -47,7 +47,7 @@ test('T1 model audits: create + dirty whitelisted updates land; off-list attrs n
     $changes = json_decode((string) $rows[1]->attribute_changes, true);
     expect($changes['attributes']['name'])->toBe('Renamed')
         ->and($changes['old']['name'])->toBe('Audited')
-        ->and($changes['attributes'])->not->toHaveKey('logo_url');
+        ->and($changes['attributes'])->not->toHaveKey('logo_hash');
 
     expect(DB::table('activity_log')->where('subject_type', User::class)->count())->toBe(0);
 });

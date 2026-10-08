@@ -1,0 +1,13 @@
+info:
+  name: Org logo: delete
+  type: http
+  seq: 6
+
+http:
+  method: delete
+  url: "{{baseUrl}}/api/v1/orgs/1/logo"  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Clears stored bytes + columns; public route then 404s.

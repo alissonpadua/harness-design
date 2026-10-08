@@ -7,6 +7,7 @@ namespace App\Http\Requests\Org;
 use App\Auth\OrgAuthorizer;
 use App\Enums\MemberStatus;
 use App\Models\Organization;
+use App\Models\PersonalAccessToken;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Http\FormRequest;
@@ -48,6 +49,15 @@ abstract class OrgScopedRequest extends FormRequest
 
         if ($this->permission !== '' && ! $authorizer->can($user, $org, $this->permission)) {
             throw new HttpException(403, 'This action is unauthorized.');
+        }
+
+        // Integration tokens (spec 006): the acting PAT's granted abilities narrow
+        // the creator's role plane; missing ability → explicit 403 naming it.
+        $token = $user->currentAccessToken();
+
+        if ($this->permission !== '' && $token instanceof PersonalAccessToken && $token->isIntegration()
+            && ! in_array($this->permission, (array) $token->abilities, true)) {
+            throw new HttpException(403, "This token lacks the required ability: {$this->permission}.");
         }
 
         $this->org = $org;

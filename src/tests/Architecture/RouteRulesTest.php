@@ -115,3 +115,37 @@ test('LogsActivity whitelists never include credential-shaped attributes', funct
 
     expect($files)->not->toBeEmpty();
 });
+
+/* ────────────────────────────── 006 security ─────────────────────────────── */
+
+test('no mass-assignment shortcuts anywhere in app code', function () {
+    $hits = SourceScan::findInProject(
+        ['create\(\s*\$[A-Za-z_]*[Rr]equest\s*->all\(', '->fill\(\s*\$[A-Za-z_]*[Rr]equest\s*->all\(', 'unguard\s*\(', '\$guarded\s*=\s*\[\s*\]'],
+        ['app'],
+    );
+
+    expect($hits)->toBe([]);
+});
+
+test('mass-assignment checker flags violations and accepts compliant code (fixtures)', function () {
+    $scan = fn (string $src): array => SourceScan::scanString($src, 'create\(\s*\$request\s*->all\(|unguard\s*\(|\$guarded\s*=\s*\[\s*\]');
+
+    expect($scan("<?php\nModel::create(\$request->all());"))->not->toBeEmpty()
+        ->and($scan('<?php $m->unguard(fn () => 1);'))->not->toBeEmpty()
+        ->and($scan('<?php class X { protected $guarded = []; }'))->not->toBeEmpty()
+        ->and($scan('<?php Model::create($request->validated());'))->toBe([]);
+});
+
+test('the org logo is the ONLY upload surface in app code', function () {
+    $hits = SourceScan::findInProject(
+        ['UploadedFile', '->file\('],
+        ['app'],
+        ['app/Actions/Org/SetOrgLogoAction.php', 'app/Http/Controllers/Api/Org/OrgLogoController.php'],
+    );
+
+    expect($hits)->toBe([]);
+});
+
+test('upload-surface checker flags rogue uploads (fixture)', function () {
+    expect(SourceScan::scanString("<?php\n\$f = \$request->file('cv'); new \\Illuminate\\Http\\UploadedFile('x');", 'UploadedFile|->file\('))->not->toBeEmpty();
+});

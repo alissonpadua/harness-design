@@ -18,7 +18,6 @@ final class UpdateOrganizationRequest extends OrgScopedRequest
     {
         return [
             'name' => ['sometimes', 'string', 'min:2', 'max:120'],
-            'logo_url' => ['sometimes', 'nullable', 'url', 'max:2048'],
             'domain' => ['sometimes', 'nullable', 'string', 'regex:/^[a-z0-9.-]+\.[a-z]{2,}$/i', 'max:255'],
             'default_member_role' => ['sometimes', Rule::enum(OrgRole::class)->except(OrgRole::Owner)],
             'require_2fa' => ['sometimes', 'boolean'],

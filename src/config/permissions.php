@@ -27,6 +27,7 @@ return [
         'org.transfer' => 'Transfer ownership (owner only)',
         'members.view' => 'List members',
         'members.invite' => 'Invite members',
+        'tokens.manage' => 'Create and revoke integration tokens (spec 006)',
         'members.update_role' => 'Change member roles',
         'members.suspend' => 'Suspend / reactivate members',
         'members.remove' => 'Remove members',

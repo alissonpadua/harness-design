@@ -1,0 +1,29 @@
+info:
+  name: Integration tokens: create (shown once)
+  type: http
+  seq: 2
+
+http:
+  method: post
+  url: "{{baseUrl}}/api/v1/orgs/1/tokens"  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "ci-runner",
+        "abilities": ["members.view"]
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+
+docs: |-
+  Abilities MUST be permission names from config/permissions.php.
+  Returns data.token ONCE. 403 unless the creator has TOTP confirmed or a passkey.

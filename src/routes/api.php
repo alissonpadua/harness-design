@@ -21,11 +21,13 @@ use App\Http\Controllers\Api\Billing\BillingController;
 use App\Http\Controllers\Api\Billing\CheckoutReturnController;
 use App\Http\Controllers\Api\Billing\WebhookController;
 use App\Http\Controllers\Api\Notifications\NotificationController;
+use App\Http\Controllers\Api\Org\IntegrationTokenController;
 use App\Http\Controllers\Api\Org\InviteController;
 use App\Http\Controllers\Api\Org\InviteLinkController;
 use App\Http\Controllers\Api\Org\MemberController;
 use App\Http\Controllers\Api\Org\OrganizationController;
 use App\Http\Controllers\Api\Org\OrgAuditController;
+use App\Http\Controllers\Api\Org\OrgLogoController;
 use App\Http\Controllers\Api\PingController;
 use App\Http\Controllers\Api\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -112,7 +114,11 @@ Route::prefix('v1/auth')->group(function (): void {
     });
 });
 
-Route::prefix('v1/orgs')->middleware(['auth:sanctum', 'not-suspended', 'audit-impersonated', 'throttle:org-mutations'])->name('api.v1.orgs.')->group(function (): void {
+// Spec 006 Q4=B: sole public-read surface — the org logo (bytes re-encoded on
+// upload; s3 answers 302 to a short signed URL, other drivers stream).
+Route::get('v1/public/orgs/{identifier}/logo', [OrgLogoController::class, 'show'])->name('api.v1.public.logo');
+
+Route::prefix('v1/orgs')->middleware(['auth:sanctum', 'not-suspended', 'audit-impersonated', 'throttle:org-mutations', 'throttle:plan-api'])->name('api.v1.orgs.')->group(function (): void {
     Route::get('/', [OrganizationController::class, 'index'])->name('index');
     Route::post('/', [OrganizationController::class, 'store'])->name('store');
     Route::get('{organization}', [OrganizationController::class, 'show'])->name('show');
@@ -136,6 +142,15 @@ Route::prefix('v1/orgs')->middleware(['auth:sanctum', 'not-suspended', 'audit-im
     Route::post('{organization}/leave', [MemberController::class, 'leave'])->name('leave');
 
     Route::get('{organization}/audit', [OrgAuditController::class, 'index'])->name('audit');
+
+    Route::put('{organization}/logo', [OrgLogoController::class, 'update'])->name('logo.update');
+    Route::delete('{organization}/logo', [OrgLogoController::class, 'destroy'])->name('logo.destroy');
+
+    Route::prefix('{organization}/tokens')->name('tokens.')->middleware('throttle:tokens-mutations')->group(function (): void {
+        Route::get('/', [IntegrationTokenController::class, 'index'])->name('index');
+        Route::post('/', [IntegrationTokenController::class, 'store'])->name('store');
+        Route::delete('{tokenId}', [IntegrationTokenController::class, 'destroy'])->whereNumber('tokenId')->name('destroy');
+    });
 
     Route::prefix('{organization}/billing')->name('billing.')->middleware('throttle:billing')->group(function (): void {
         Route::post('checkout', [BillingController::class, 'checkout'])->name('checkout');

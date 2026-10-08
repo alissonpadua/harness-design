@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Logging\RequestIdProcessor;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -56,6 +57,7 @@ return [
 
         'stack' => [
             'driver' => 'stack',
+            'processors' => [RequestIdProcessor::class],
             'channels' => explode(',', (string) env('LOG_STACK', 'single')),
             'ignore_exceptions' => false,
         ],
@@ -100,6 +102,7 @@ return [
                 'host' => env('PAPERTRAIL_URL'),
                 'port' => env('PAPERTRAIL_PORT'),
                 'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
+                'tap' => [RequestIdProcessor::class],
             ],
             'processors' => [PsrLogMessageProcessor::class],
         ],
@@ -110,6 +113,7 @@ return [
             'handler' => StreamHandler::class,
             'handler_with' => [
                 'stream' => 'php://stderr',
+                'tap' => [RequestIdProcessor::class],
             ],
             'formatter' => env('LOG_STDERR_FORMATTER'),
             'processors' => [PsrLogMessageProcessor::class],

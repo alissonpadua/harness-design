@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Admin\ImpersonationController;
 use App\Http\Controllers\Api\Admin\OpsController;
 use App\Http\Controllers\Api\Admin\OrganizationController as AdminOrganizationController;
 use App\Http\Controllers\Api\Admin\PlanController;
+use App\Http\Controllers\Api\Admin\SettingsController;
 use App\Http\Controllers\Api\Admin\UserController;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,9 @@ Route::prefix('admin/v1')->middleware(['auth:sanctum', 'not-impersonating', 'rol
     Route::post('plans', [PlanController::class, 'store'])->name('plans.store');
     Route::get('plans/{plan}', [PlanController::class, 'show'])->whereNumber('plan')->name('plans.show');
     Route::patch('plans/{plan}', [PlanController::class, 'update'])->whereNumber('plan')->name('plans.update');
+
+    Route::get('settings/registrations', [SettingsController::class, 'registrations'])->name('settings.registrations.show');
+    Route::put('settings/registrations', [SettingsController::class, 'updateRegistrations'])->name('settings.registrations.update');
 
     Route::get('ops/horizon-url', [OpsController::class, 'horizonUrl'])->name('ops.horizon_url');
     Route::post('billing/webhooks/{event}/replay', [OpsController::class, 'replayWebhook'])->whereNumber('event')->name('webhooks.replay');
