@@ -9,6 +9,7 @@ use App\Contracts\TwoFactorPolicy;
 use App\Data\Auth\CompleteOAuthData;
 use App\Data\Auth\LoginTokenData;
 use App\Events\Auth\UserRegistered;
+use App\Exceptions\AccountSuspendedException;
 use App\Exceptions\EmailNotVerifiedException;
 use App\Exceptions\LoginFailedException;
 use App\Exceptions\TwoFactorMandatoryException;
@@ -58,6 +59,10 @@ final readonly class CompleteOAuthAction
 
         if (! $user->hasVerifiedEmail()) {
             throw new EmailNotVerifiedException;
+        }
+
+        if ($user->isSuspended()) {
+            throw new AccountSuspendedException;
         }
 
         if ($this->policy->requires($user) && $user->two_factor_confirmed_at === null) {

@@ -9,6 +9,8 @@ use App\Enums\SubscriptionStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * @property int $organization_id
@@ -25,12 +27,24 @@ use Illuminate\Support\Carbon;
  */
 class BillingSubscription extends Model
 {
+    use LogsActivity;
+
     protected $table = 'subscriptions';
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['plan_id', 'status', 'admin_locked', 'cancel_at_period_end', 'over_limit_until'])
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges()
+            ->useLogName('audit')
+            ->setDescriptionForEvent(fn (string $eventName) => $eventName);
+    }
 
     protected $fillable = [
         'organization_id', 'plan_id', 'status', 'gateway', 'gateway_subscription_id',
         'interval', 'current_period_end', 'trial_end', 'cancel_at_period_end',
-        'past_due_since', 'over_limit_until',
+        'past_due_since', 'over_limit_until', 'admin_locked',
     ];
 
     protected function casts(): array
@@ -43,6 +57,7 @@ class BillingSubscription extends Model
             'cancel_at_period_end' => 'boolean',
             'past_due_since' => 'datetime',
             'over_limit_until' => 'datetime',
+            'admin_locked' => 'boolean',
         ];
     }
 

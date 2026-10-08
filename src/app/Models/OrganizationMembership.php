@@ -7,6 +7,8 @@ namespace App\Models;
 use App\Enums\MemberStatus;
 use App\Enums\OrgRole;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * @property int $organization_id
@@ -16,6 +18,18 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  */
 class OrganizationMembership extends Pivot
 {
+    use LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['role', 'status'])
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges()
+            ->useLogName('audit')
+            ->setDescriptionForEvent(fn (string $eventName) => $eventName);
+    }
+
     protected $table = 'organization_user';
 
     protected $fillable = ['organization_id', 'user_id', 'role', 'status', 'invited_by'];

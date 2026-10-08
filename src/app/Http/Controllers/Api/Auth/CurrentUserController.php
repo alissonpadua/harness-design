@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 
 final class CurrentUserController extends Controller
 {
-    #[Response(status: 200, type: 'array{data: array{id: int, name: string, email: string, email_verified_at: string|null}}')]
+    #[Response(status: 200, type: 'array{data: array{id: int, name: string, email: string, email_verified_at: string|null, impersonation: array{impersonator_id: int, impersonator_name: string|null, started_at: string|null}|null}}')]
     public function __invoke(Request $request): CurrentUserData
     {
         /** @var User $user */

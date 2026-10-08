@@ -1,0 +1,18 @@
+info:
+  name: Orgs: directory
+  type: http
+  seq: 12
+
+http:
+  method: get
+  url: "{{baseUrl}}/admin/v1/orgs"
+  params:
+    - name: per_page
+      value: "25"
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 005 — all organizations incl. plan, member counts, trashed flag.

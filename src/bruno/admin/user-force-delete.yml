@@ -1,0 +1,25 @@
+info:
+  name: Users: force-delete (typed confirmation)
+  type: http
+  seq: 7
+
+http:
+  method: delete
+  url: "{{baseUrl}}/admin/v1/users/1"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "confirm_text": "user@example.com"
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 005 AC-005.4 — TRUE hard delete: requires confirm_text == email.
+    Teams are transferred/purged first (422 if other members remain and org not
+    trashed); personal workspace removed with the account; audit rows survive.

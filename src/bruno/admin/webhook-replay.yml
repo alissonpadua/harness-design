@@ -1,0 +1,14 @@
+info:
+  name: Ops: replay webhook event
+  type: http
+  seq: 18
+
+http:
+  method: post
+  url: "{{baseUrl}}/admin/v1/billing/webhooks/123/replay"  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 005 AC-005.13 — force re-runs the recorded event's handler idempotently
+    (no re-ingest). Audited webhook.replay. Unknown event → 404.

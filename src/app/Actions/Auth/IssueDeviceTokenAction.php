@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Auth;
 
+use App\Audit\AuditSecurityEvent;
 use App\Data\Auth\LoginTokenData;
 use App\Enums\DeviceType;
 use App\Events\Auth\OtherLoginDetected;
@@ -17,6 +18,10 @@ final readonly class IssueDeviceTokenAction
 {
     public function handle(User $user, DeviceType $type, string $ip, ?string $userAgent): LoginTokenData
     {
+        if ($user->hasRole('super-admin')) {
+            app(AuditSecurityEvent::class)->log('admin_login', $user, $user, ['ip' => $ip, 'device_type' => $type->value]);
+        }
+
         $value = $type->value;
         $otherActive = $user->tokens()->where('device_type', '!=', $value)->exists();
 

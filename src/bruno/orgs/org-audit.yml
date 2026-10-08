@@ -1,0 +1,19 @@
+info:
+  name: Org audit window
+  type: http
+  seq: 99
+
+http:
+  method: get
+  url: "{{baseUrl}}/api/v1/orgs/1/audit"
+  params:
+    - name: limit
+      value: "25"
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 005 AC-005.8 — org-facing audit (owner+admin, permission audit.view).
+      Windowed by the org's plan audit_retention_days (free → 402). Cursor paging.

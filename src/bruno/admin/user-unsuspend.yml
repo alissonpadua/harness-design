@@ -1,0 +1,13 @@
+info:
+  name: Users: unsuspend
+  type: http
+  seq: 5
+
+http:
+  method: post
+  url: "{{baseUrl}}/admin/v1/users/1/unsuspend"  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 005 AC-005.3 — clears suspension; user must log in again (tokens were revoked).

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 use App\Exceptions\ApiErrorRenderer;
 use App\Http\Middleware\ApiEnvelope;
+use App\Http\Middleware\AuditImpersonatedRequest;
 use App\Http\Middleware\EnsureDocsVisible;
+use App\Http\Middleware\EnsureNotImpersonating;
+use App\Http\Middleware\EnsureNotSuspended;
 use App\Http\Middleware\RequestId;
 use App\Http\Middleware\TrackTokenUsage;
 use Illuminate\Console\Scheduling\Schedule;
@@ -21,7 +24,9 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
-        health: '/up',
+        then: function (): void {
+            require __DIR__.'/../routes/health.php';
+        },
     )
     // Reverb proxies private-channel auth here (spec 004 S3).
     ->withBroadcasting(
@@ -32,6 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('billing:dunning')->hourly()->withoutOverlapping();
         $schedule->command('notifications:sweep-failed')->everyFifteenMinutes()->withoutOverlapping();
         $schedule->command('notifications:trial-reminders')->dailyAt('08:00')->withoutOverlapping();
+        $schedule->command('audit:prune')->dailyAt('03:00')->withoutOverlapping();
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append([
@@ -40,6 +46,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
+            'not-suspended' => EnsureNotSuspended::class,
+            'not-impersonating' => EnsureNotImpersonating::class,
+            'audit-impersonated' => AuditImpersonatedRequest::class,
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,

@@ -16,4 +16,9 @@ interface OrgEntitlements
     public function maxTeams(User $user): int;
 
     public function maxMembers(Organization $organization): int;
+
+    /**
+     * Effective audit_retention_days (0 = org audit feed disabled, spec 005).
+     */
+    public function auditRetentionDays(Organization $organization): int;
 }

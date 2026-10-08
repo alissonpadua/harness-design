@@ -38,6 +38,7 @@ return [
         'invite_links.manage',
         'billing.view',
         'billing.manage',
+        'audit.view',
     ],
 
     'owner' => [

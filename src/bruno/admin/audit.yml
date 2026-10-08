@@ -1,0 +1,22 @@
+info:
+  name: Audit: platform trail
+  type: http
+  seq: 11
+
+http:
+  method: get
+  url: "{{baseUrl}}/admin/v1/audit"
+  params:
+    - name: event
+      value: "user.suspend"
+      type: query
+    - name: per_page
+      value: "25"
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 005 AC-005.7/8 — append-only audit trail. Filters: subject_type,
+    subject_id, causer_id, event, from, to. Platform-retained (AUDIT_RETENTION_DAYS).

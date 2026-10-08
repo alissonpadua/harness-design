@@ -1,0 +1,26 @@
+info:
+  name: Orgs: entitlement override
+  type: http
+  seq: 16
+
+http:
+  method: put
+  url: "{{baseUrl}}/admin/v1/orgs/1/entitlements"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "entitlements": {
+          "max_teams": 99
+        }
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 005 — partial override merged on top of the plan's effective entitlements.
+    Send {"entitlements": {}} to remove the override.

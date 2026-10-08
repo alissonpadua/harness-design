@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * @property int $id
@@ -31,7 +33,17 @@ use Illuminate\Support\Str;
 class Organization extends Model
 {
     /** @use HasFactory<OrganizationFactory> */
-    use HasFactory;
+    use HasFactory, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'require_2fa', 'invite_only', 'default_member_role'])
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges()
+            ->useLogName('audit')
+            ->setDescriptionForEvent(fn (string $eventName) => $eventName);
+    }
 
     use SoftDeletes;
 

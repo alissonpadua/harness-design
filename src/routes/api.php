@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\Org\InviteController;
 use App\Http\Controllers\Api\Org\InviteLinkController;
 use App\Http\Controllers\Api\Org\MemberController;
 use App\Http\Controllers\Api\Org\OrganizationController;
+use App\Http\Controllers\Api\Org\OrgAuditController;
 use App\Http\Controllers\Api\PingController;
 use App\Http\Controllers\Api\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -94,7 +95,7 @@ Route::prefix('v1/auth')->group(function (): void {
             ->whereNumber('sessionId')
             ->name('api.v1.auth.sessions.destroy');
 
-        Route::prefix('passkeys')->name('api.v1.auth.passkeys.')->group(function (): void {
+        Route::prefix('passkeys')->middleware('not-impersonating')->name('api.v1.auth.passkeys.')->group(function (): void {
             Route::post('register/options', [PasskeyController::class, 'registerOptions'])->name('register.options');
             Route::post('register', [PasskeyController::class, 'register'])->name('register');
             Route::get('/', [PasskeyController::class, 'index'])->name('index');
@@ -103,7 +104,7 @@ Route::prefix('v1/auth')->group(function (): void {
                 ->name('destroy');
         });
 
-        Route::prefix('2fa')->name('api.v1.auth.2fa.')->group(function (): void {
+        Route::prefix('2fa')->middleware('not-impersonating')->name('api.v1.auth.2fa.')->group(function (): void {
             Route::post('enroll', [TwoFactorController::class, 'enroll'])->middleware('throttle:auth-2fa')->name('enroll');
             Route::post('confirm', [TwoFactorController::class, 'confirm'])->middleware('throttle:auth-2fa')->name('confirm');
             Route::post('disable', [TwoFactorController::class, 'disable'])->middleware('throttle:auth-2fa')->name('disable');
@@ -111,12 +112,12 @@ Route::prefix('v1/auth')->group(function (): void {
     });
 });
 
-Route::prefix('v1/orgs')->middleware(['auth:sanctum', 'throttle:org-mutations'])->name('api.v1.orgs.')->group(function (): void {
+Route::prefix('v1/orgs')->middleware(['auth:sanctum', 'not-suspended', 'audit-impersonated', 'throttle:org-mutations'])->name('api.v1.orgs.')->group(function (): void {
     Route::get('/', [OrganizationController::class, 'index'])->name('index');
     Route::post('/', [OrganizationController::class, 'store'])->name('store');
     Route::get('{organization}', [OrganizationController::class, 'show'])->name('show');
     Route::patch('{organization}', [OrganizationController::class, 'update'])->name('update');
-    Route::delete('{organization}', [OrganizationController::class, 'destroy'])->name('destroy');
+    Route::delete('{organization}', [OrganizationController::class, 'destroy'])->middleware('not-impersonating')->name('destroy');
     Route::post('{organization}/switch', [OrganizationController::class, 'switch'])->name('switch');
     Route::get('{organization}/members', [MemberController::class, 'index'])->name('members.index');
     Route::patch('{organization}/members/{user}', [MemberController::class, 'update'])->whereNumber('user')->name('members.update');
@@ -134,6 +135,8 @@ Route::prefix('v1/orgs')->middleware(['auth:sanctum', 'throttle:org-mutations'])
 
     Route::post('{organization}/leave', [MemberController::class, 'leave'])->name('leave');
 
+    Route::get('{organization}/audit', [OrgAuditController::class, 'index'])->name('audit');
+
     Route::prefix('{organization}/billing')->name('billing.')->middleware('throttle:billing')->group(function (): void {
         Route::post('checkout', [BillingController::class, 'checkout'])->name('checkout');
         Route::get('subscription', [BillingController::class, 'subscription'])->name('subscription');
@@ -148,7 +151,7 @@ Route::prefix('v1/orgs')->middleware(['auth:sanctum', 'throttle:org-mutations'])
         Route::get('invoices', [BillingController::class, 'invoices'])->name('invoices.index');
         Route::get('invoices/{invoice}/download', [BillingController::class, 'download'])->whereNumber('invoice')->name('invoices.download');
     });
-    Route::post('{organization}/transfer-ownership', [MemberController::class, 'transfer'])->name('transfer');
+    Route::post('{organization}/transfer-ownership', [MemberController::class, 'transfer'])->middleware('not-impersonating')->name('transfer');
 });
 
 Route::post('v1/invites/accept', [InviteController::class, 'accept'])
@@ -167,7 +170,7 @@ Route::post('v1/billing/webhook/stripe', WebhookController::class)
     ->middleware('throttle:billing-webhook')
     ->name('api.v1.billing.webhook');
 
-Route::prefix('v1/notifications')->middleware('auth:sanctum')->name('api.v1.notifications.')->group(function (): void {
+Route::prefix('v1/notifications')->middleware(['auth:sanctum', 'not-suspended', 'audit-impersonated'])->name('api.v1.notifications.')->group(function (): void {
     Route::get('/', [NotificationController::class, 'index'])->name('index');
     Route::get('preferences', [NotificationController::class, 'preferences'])->name('preferences.show');
     Route::put('preferences', [NotificationController::class, 'updatePreferences'])
@@ -175,10 +178,10 @@ Route::prefix('v1/notifications')->middleware('auth:sanctum')->name('api.v1.noti
         ->name('preferences.update');
 });
 
-Route::prefix('v1/profile')->middleware('auth:sanctum')->name('api.v1.profile.')->group(function (): void {
+Route::prefix('v1/profile')->middleware(['auth:sanctum', 'not-suspended', 'audit-impersonated'])->name('api.v1.profile.')->group(function (): void {
     Route::get('/', [ProfileController::class, 'show'])->name('show');
     Route::put('/', [ProfileController::class, 'update'])->name('update');
-    Route::put('email', [ProfileController::class, 'email'])->name('email');
-    Route::put('password', [ProfileController::class, 'password'])->name('password');
-    Route::post('delete-account', [ProfileController::class, 'deleteAccount'])->name('delete');
+    Route::put('email', [ProfileController::class, 'email'])->middleware('not-impersonating')->name('email');
+    Route::put('password', [ProfileController::class, 'password'])->middleware('not-impersonating')->name('password');
+    Route::post('delete-account', [ProfileController::class, 'deleteAccount'])->middleware('not-impersonating')->name('delete');
 });

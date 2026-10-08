@@ -1,0 +1,13 @@
+info:
+  name: Impersonate: active sessions
+  type: http
+  seq: 9
+
+http:
+  method: get
+  url: "{{baseUrl}}/admin/v1/impersonations"  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 005 — every currently-active impersonation token (admin can stop any).

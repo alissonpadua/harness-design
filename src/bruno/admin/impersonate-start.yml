@@ -1,0 +1,15 @@
+info:
+  name: Impersonate: start
+  type: http
+  seq: 8
+
+http:
+  method: post
+  url: "{{baseUrl}}/admin/v1/users/1/impersonate"  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 005 AC-005.5 — mints a victim token bound to impersonator_id; every
+    request made with it is audited (impersonated_request). No auto-expiry:
+    ends when the admin explicitly stops it.

@@ -32,13 +32,17 @@ final readonly class ProcessWebhookEvent
     /**
      * @param  array<string, mixed>  $event
      */
-    public function handle(string $gateway, array $event): IngestResultData
+    public function handle(string $gateway, array $event, bool $force = false): IngestResultData
     {
         $id = (string) ($event['id'] ?? '');
         $type = (string) ($event['type'] ?? '');
 
         if ($id === '' || $type === '') {
             return new IngestResultData('unknown', 'unknown', 'failed');
+        }
+
+        if ($force) {
+            return $this->replay($gateway, $event, $id, $type);
         }
 
         if (WebhookEvent::query()->where('gateway', $gateway)->where('gateway_event_id', $id)->exists()) {
@@ -73,6 +77,30 @@ final readonly class ProcessWebhookEvent
     }
 
     /**
+     * Admin force-replay: re-run the mutation handlers against an already
+     * recorded event WITHOUT re-recording it (handlers are idempotent).
+     *
+     * @param  array<string, mixed>  $event
+     */
+    private function replay(string $gateway, array $event, string $id, string $type): IngestResultData
+    {
+        try {
+            $outcome = match ($type) {
+                'checkout.session.completed' => $this->checkoutCompleted($event),
+                'customer.subscription.updated' => $this->subscriptionUpdated($event),
+                'customer.subscription.deleted' => $this->subscriptionDeleted($event),
+                'invoice.paid' => $this->invoicePaid($event),
+                'invoice.payment_failed' => $this->invoicePaymentFailed($event),
+                default => 'ignored',
+            };
+        } catch (Throwable $e) {
+            return new IngestResultData($id, $type, 'failed');
+        }
+
+        return new IngestResultData($id, $type, $outcome);
+    }
+
+    /**
      * @param  array<string, mixed>  $event
      */
     private function checkoutCompleted(array $event): string
@@ -91,6 +119,7 @@ final readonly class ProcessWebhookEvent
         $trialDays = (int) ($meta['trial_days'] ?? 0);
 
         $sub->forceFill([
+            'admin_locked' => false, // a fresh, real checkout unlocks a prior admin grant
             'plan_id' => (int) ($meta['plan_id'] ?? $sub->plan_id),
             'gateway_subscription_id' => (string) ($session['subscription'] ?? ''),
             'interval' => (string) ($meta['interval'] ?? BillingInterval::Monthly->value),
@@ -116,6 +145,10 @@ final readonly class ProcessWebhookEvent
 
         if ($sub === null) {
             return 'failed';
+        }
+
+        if ($sub->admin_locked) {
+            return 'skipped_locked';
         }
 
         /** @var array<string, mixed> $obj */
@@ -156,6 +189,10 @@ final readonly class ProcessWebhookEvent
             return 'failed';
         }
 
+        if ($sub->admin_locked) {
+            return 'skipped_locked';
+        }
+
         $sub->forceFill([
             'status' => SubscriptionStatus::Canceled,
             'cancel_at_period_end' => false,
@@ -171,11 +208,15 @@ final readonly class ProcessWebhookEvent
      */
     private function invoicePaid(array $event): string
     {
-        $sub = $this->subByInvoice($event);
         $invoice = $this->upsertInvoice($event, 'paid');
+        $sub = $this->subByInvoice($event);
 
         if ($sub === null) {
             return 'failed';
+        }
+
+        if ($sub->admin_locked) {
+            return 'skipped_locked';
         }
 
         if ($sub->status === SubscriptionStatus::PastDue) {
@@ -193,11 +234,15 @@ final readonly class ProcessWebhookEvent
      */
     private function invoicePaymentFailed(array $event): string
     {
-        $sub = $this->subByInvoice($event);
         $this->upsertInvoice($event, 'open');
+        $sub = $this->subByInvoice($event);
 
         if ($sub === null) {
             return 'failed';
+        }
+
+        if ($sub->admin_locked) {
+            return 'skipped_locked';
         }
 
         $sub->forceFill([

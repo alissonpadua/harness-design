@@ -1,0 +1,13 @@
+info:
+  name: Users: detail
+  type: http
+  seq: 3
+
+http:
+  method: get
+  url: "{{baseUrl}}/admin/v1/users/1"  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 005 — profile, devices (tokens), memberships, recent audit trail.

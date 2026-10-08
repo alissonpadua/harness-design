@@ -24,12 +24,12 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 final class ProfileController extends Controller
 {
     #[Response(status: 200, type: 'array{data: array{id: int, name: string, email: string, email_verified_at: string|null, locale: string, timezone: string}}')]
-    public function show(Request $request): ProfileData
+    public function show(Request $request): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
 
-        return ProfileData::make($user);
+        return response()->json(['data' => ProfileData::make($user)->toArray() + ['impersonation' => $user->currentImpersonation()]]);
     }
 
     public function update(UpdateProfileRequest $request, UpdateProfileAction $action): ProfileData

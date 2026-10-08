@@ -1,0 +1,25 @@
+info:
+  name: Orgs: change plan (admin)
+  type: http
+  seq: 15
+
+http:
+  method: post
+  url: "{{baseUrl}}/admin/v1/orgs/1/plan"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "plan_code": "pro"
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 005 Q6 — sets plan directly; cancels any remote Stripe subscription and
+    locks it (admin_locked): late webhooks are skipped (skipped_locked) until the
+    org makes its own billing change. Audited org.plan_change.

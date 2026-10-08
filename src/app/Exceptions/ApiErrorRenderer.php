@@ -53,6 +53,7 @@ final readonly class ApiErrorRenderer
             ],
             $exception instanceof AuthenticationException => [401, 'Unauthenticated.', []],
             $exception instanceof LoginFailedException => [401, 'These credentials do not match our records.', []],
+            $exception instanceof AccountSuspendedException => [403, 'Account suspended.', []],
             $exception instanceof EmailNotVerifiedException => [403, 'Please verify your email address.', []],
             $exception instanceof TwoFactorRequiredException => [401, 'Two factor authentication is required.', []],
             $exception instanceof TwoFactorMandatoryException => [403, 'Two factor authentication is mandatory for your organization.', ['two_factor' => ['required']]],

@@ -1,0 +1,19 @@
+info:
+  name: Users: list
+  type: http
+  seq: 2
+
+http:
+  method: get
+  url: "{{baseUrl}}/admin/v1/users"
+  params:
+    - name: per_page
+      value: "25"
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 005 AC-005.1/2 — user directory (email search, status flags).
+    Filters: search, suspended, trashed, per_page, cursor.

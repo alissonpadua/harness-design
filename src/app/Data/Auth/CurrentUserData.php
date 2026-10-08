@@ -15,6 +15,8 @@ final class CurrentUserData extends Data
         public readonly string $name,
         public readonly string $email,
         public readonly ?string $email_verified_at,
+        /** @var array{impersonator_id: int, impersonator_name: string|null, started_at: string|null}|null */
+        public readonly ?array $impersonation = null,
     ) {}
 
     public static function make(User $user): self
@@ -24,6 +26,7 @@ final class CurrentUserData extends Data
             name: $user->name,
             email: $user->email,
             email_verified_at: $user->email_verified_at?->toIso8601String(),
+            impersonation: $user->currentImpersonation(),
         );
     }
 }

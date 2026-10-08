@@ -1,0 +1,13 @@
+info:
+  name: Impersonate: stop
+  type: http
+  seq: 10
+
+http:
+  method: delete
+  url: "{{baseUrl}}/admin/v1/impersonations/1"  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 005 AC-005.5 — revokes the victim token, audits impersonation_stop.

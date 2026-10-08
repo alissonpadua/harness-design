@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use InvalidArgumentException;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * @property string $code
@@ -19,6 +21,18 @@ use InvalidArgumentException;
  */
 class Plan extends Model
 {
+    use LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'trial_days', 'active'])
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges()
+            ->useLogName('audit')
+            ->setDescriptionForEvent(fn (string $eventName) => $eventName);
+    }
+
     protected $fillable = ['code', 'name', 'trial_days', 'active', 'entitlements'];
 
     /**

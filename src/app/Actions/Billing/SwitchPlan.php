@@ -49,6 +49,7 @@ final readonly class SwitchPlan
                 'plan_id' => $target->id,
                 'status' => SubscriptionStatus::Active,
                 'gateway_subscription_id' => null,
+                'admin_locked' => false, // the org acting itself supersedes any admin grant
                 'trial_end' => null,
                 'cancel_at_period_end' => false,
                 'past_due_since' => null,
@@ -61,6 +62,7 @@ final readonly class SwitchPlan
             $sub->forceFill([
                 'plan_id' => $target->id,
                 'status' => SubscriptionStatus::Active,
+                'admin_locked' => false,
                 'gateway_subscription_id' => $redirect->gatewayRef,
                 'current_period_end' => $sub->interval === BillingInterval::Annual ? now()->addYear() : now()->addMonth(),
                 'trial_end' => null,

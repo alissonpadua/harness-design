@@ -6,6 +6,7 @@ namespace App\Actions\Auth;
 
 use App\Data\Auth\LoginTokenData;
 use App\Enums\DeviceType;
+use App\Exceptions\AccountSuspendedException;
 use App\Exceptions\EmailNotVerifiedException;
 use App\Exceptions\LoginFailedException;
 use App\Models\User;
@@ -50,6 +51,10 @@ final readonly class AuthenticatePasskeyAction
 
         if (! $user->hasVerifiedEmail()) {
             throw new EmailNotVerifiedException;
+        }
+
+        if ($user->isSuspended()) {
+            throw new AccountSuspendedException;
         }
 
         try {

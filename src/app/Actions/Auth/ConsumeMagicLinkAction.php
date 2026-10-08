@@ -8,6 +8,7 @@ use App\Auth\TwoFactorChallenge;
 use App\Contracts\TwoFactorPolicy;
 use App\Data\Auth\ConsumeMagicLinkData;
 use App\Data\Auth\LoginTokenData;
+use App\Exceptions\AccountSuspendedException;
 use App\Exceptions\AuthLinkException;
 use App\Exceptions\TwoFactorMandatoryException;
 use App\Models\AuthLink;
@@ -35,6 +36,10 @@ final readonly class ConsumeMagicLinkAction
         if ($link === null || $user === null) {
             // unknown / expired / consumed / deleted-owner all identical
             throw new AuthLinkException;
+        }
+
+        if ($user->isSuspended()) {
+            throw new AccountSuspendedException;
         }
 
         // Challenge BEFORE consuming so a failed 2FA leaves the link reusable (AC-001.18).

@@ -1,0 +1,14 @@
+info:
+  name: Ops: signed Horizon URL
+  type: http
+  seq: 17
+
+http:
+  method: get
+  url: "{{baseUrl}}/admin/v1/ops/horizon-url"  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs: |-
+  Spec 005 AC-005.10 — returns a 60s signed /horizon entry URL; visiting it
+    sets an 8h pass cookie. Audited horizon.link.
