@@ -89,16 +89,18 @@
       "id": "006",
       "name": "Security & API",
       "spec": "specs/active/006-security-api/spec.md",
-      "passes": false,
+      "passes": true,
       "steps": [
         "Security headers + CORS allowlist + X-Request-Id present on every response",
-        "Throttle buckets: login/otp/password-reset return 429 + Retry-After; plan api_rate_limit honored",
+        "Throttle buckets: login/otp/password-reset return 429 + Retry-After; plan api_rate_limit_per_min honored per ORGANIZATION (Q5=A)",
         "Integration tokens with abilities enforced (missing ability \u2192 403), shown once, revoke works",
-        "2FA-fresh-session required to create token",
+        "2FA gate required to create token \u2014 human override Q2=C/Q3=A: account-level two_factor_confirmed_at OR passkey on file (no session time-window; see verification.md deviation D1)",
         "Logo upload: finfo+re-encode, public read; all other uploads rejected (module 9 deleted) \u2014 form field validation test suite green",
         "CI: no mass assignment anywhere; FormRequest on 100% write routes (grep test)",
         "Registrations kill-switch (settings) \u2192 403 register when closed"
-      ]
+      ],
+      "verified_at": "2026-10-08",
+      "verification": "specs/active/006-security-api/verification.md"
     },
     {
       "id": "007",

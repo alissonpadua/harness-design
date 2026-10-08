@@ -20,11 +20,11 @@ Status: DRAFTED (Q1–Q6 human-answered 2026-10-07) · Depends: 001 (auth/thrott
 
 ### CORS
 - `config/cors.php`: `allowed_origins = explode(',', env('FRONTEND_ORIGINS',''))`, `allowed_methods [GET,POST,PUT,PATCH,DELETE,OPTIONS]`, `allowed_headers [Authorization,Content-Type,Accept,X-Request-Id,X-CSRF-Token]`, `credentials false` (bearer-only API), `paths: ['api/*','admin/*','up','horizon']`… horizon exempt (cookie-based, same-origin only) — **locked: `paths ['api/*','admin/*']`**.
-- Unlisted Origin → no CORS headers; OPTIONS preflight from listed origin → 204 with headers.
+- Unlisted Origin → no CORS headers; OPTIONS preflight from listed origin → 2xx with headers (framework answers 200 via its automatic OPTIONS responder — contract is the headers, not the code).
 
 ### Throttles (S2)
 - Existing named buckets stay (001): auth-register, auth-resend, auth-verify, auth-login, auth-otp, auth-reset, admin-generic, org-mutations, billing, billing-webhook. 006 ADDS: `tokens-mutations` (10/min/user).
-- All 429s: standard envelope (`message: "Too Many Requests."`) + integer `Retry-After` header (framework-provided — asserted in tests, not assumed).
+- All 429s: standard envelope (`message: "Too Many Requests"` — matches the framework 429 text, no period) + integer `Retry-After` header (framework-provided — asserted in tests, not assumed).
 - NEW plan limiter `plan-api`: applied to the authenticated `api/*` org-scope group; per-org key (Q5). Free plan default from PlansSeeder entitlement (already exists: value e.g. 60 — read from plan row, never hard-coded). 429 → same envelope + Retry-After. No metering/DB writes.
 
 ### Integration tokens (S3/S4)

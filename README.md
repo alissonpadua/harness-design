@@ -193,8 +193,8 @@ Some hooks are runtime configuration (Claude Code `settings.json`, opencode even
 | 003 | Billing & Monetization (DB plans, swappable gateway, own portal) | ✅ shipped |
 | 004 | Notifications (catalog, prefs, Echo + persisted) | ✅ shipped |
 | 005 | Admin & Ops (impersonation, suspend, audit, Horizon prod) | ✅ |
-| 006 | Security & API (integration tokens, uploads hygiene, headers) | ⏳ next |
-| 007 | Onboarding Events | ⏳ |
+| 006 | Security & API (integration tokens, uploads hygiene, headers) | ✅ |
+| 007 | Onboarding Events | ⏳ next |
 | 008 | Settings & Personalization | ⏳ |
 | 009 | Background Work & Outbound Webhooks | ⏳ |
 | 010 | Dev Platform & CI | ✅ shipped (suite 44s < 90s gate, met at 003 convergence) |
