@@ -72,16 +72,18 @@
       "id": "005",
       "name": "Admin & Ops",
       "spec": "specs/active/005-admin-ops/spec.md",
-      "passes": false,
+      "passes": true,
       "steps": [
         "/admin/v1 rejects non-super-admin (403)",
         "Suspend revokes tokens + blocks login; unsuspend restores; reason mandatory",
-        "Impersonation: 15-min token with impersonator_id claim, every request audit-logged, ends on expiry/explicit exit",
+        "Impersonation: token with impersonator_id claim, every request audit-logged, ends on explicit stop (15-min expiry superseded by Q5 human decision 2026-10-06 \u2014 see verification.md deviation #1)",
         "Restore soft-deleted user/org endpoints work",
         "Admin change-org-plan emits domain event + audit + keeps billing mirror consistent; per-org entitlement override works",
         "Audit log append-only (no update/delete routes), filters by subject/causer/date",
         "GET /up reports db/redis/queue health; Horizon reachable for super-admin"
-      ]
+      ],
+      "verified_at": "2026-10-07",
+      "verification": "specs/active/005-admin-ops/verification.md"
     },
     {
       "id": "006",

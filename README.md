@@ -192,8 +192,8 @@ Some hooks are runtime configuration (Claude Code `settings.json`, opencode even
 | 002 | Teams, Orgs & Tenancy (orgs, memberships, invites, tenant scope) | ✅ shipped |
 | 003 | Billing & Monetization (DB plans, swappable gateway, own portal) | ✅ shipped |
 | 004 | Notifications (catalog, prefs, Echo + persisted) | ✅ shipped |
-| 005 | Admin & Ops (impersonation, suspend, audit, Horizon prod) | ⏳ next |
-| 006 | Security & API (integration tokens, uploads hygiene, headers) | ⏳ |
+| 005 | Admin & Ops (impersonation, suspend, audit, Horizon prod) | ✅ |
+| 006 | Security & API (integration tokens, uploads hygiene, headers) | ⏳ next |
 | 007 | Onboarding Events | ⏳ |
 | 008 | Settings & Personalization | ⏳ |
 | 009 | Background Work & Outbound Webhooks | ⏳ |
