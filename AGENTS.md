@@ -22,9 +22,10 @@ The Laravel app lives in `src/`. This root is the harness.
 | API docs | http://localhost:8080/docs (dev) |
 | Mailpit UI | http://localhost:8025 |
 
-## Gate discipline (learned 2026-10-06, human-enforced)
+## Process rules (human-enforced)
 
-6. **Never advance on a red gate.** `harness/scripts/check.sh` must print `✔ green` before: declaring work done, starting the next task/module, or proposing commits. "Tests passed earlier" is not evidence — re-run. Small docblock/generic fixes can snowball into 2 hidden Larastan errors.
+6. **Requirements Q&A: exactly ONE question per message.** Human-enforced (2026-10-07): every module's spec-drafting phase asks one question at a time and waits for the answer before the next; never batch questions, never assume answers to skip ahead.
+7. **Never advance on a red gate.** `harness/scripts/check.sh` must print `✔ green` before: declaring work done, starting the next task/module, or proposing commits. "Tests passed earlier" is not evidence — re-run. Small docblock/generic fixes can snowball into 2 hidden Larastan errors.
 
 ## Architecture (enforced by Pest arch tests in src/tests/Architecture)
 
